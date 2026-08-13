@@ -11,6 +11,15 @@ const About = (() => {
       const ok = await UI.copyText(e.target.textContent.trim());
       UI.toast(ok ? "QQ 已复制" : "复制失败");
     });
+    // data-copy 按钮：复制对应元素文本
+    document.querySelectorAll("[data-copy]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const src = document.getElementById(btn.dataset.copy);
+        if (!src) return;
+        const ok = await UI.copyText(src.textContent.trim());
+        UI.toast(ok ? `已复制 ${src.textContent.trim()}` : "复制失败");
+      });
+    });
   }
   return { init };
 })();

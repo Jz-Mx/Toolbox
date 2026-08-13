@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Talent ✨ 工具箱</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══════════ 背景层 ══════════ -->
+<div class="bg" aria-hidden="true">
+  <div class="bg-grad"></div>
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
+  <div class="bg-stars" id="bgStars"></div>
+  <svg class="bg-wave" viewBox="0 0 1440 320" preserveAspectRatio="none">
+    <path d="M0,192 C240,320 480,64 720,160 C960,256 1200,96 1440,192 L1440,320 L0,320 Z" fill="url(#waveGrad)" opacity="0.5"/>
+    <defs>
+      <linearGradient id="waveGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#8b5cf6"/>
+        <stop offset="100%" stop-color="#ec4899"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
+
+<!-- ══════════ 标题栏 ══════════ -->
+<header class="titlebar">
+  <div class="titlebar-drag" id="dragArea">
+    <div class="titlebar-logo">✨</div>
+    <div class="titlebar-name">Talent 工具箱</div>
+  </div>
+  <div class="titlebar-btns">
+    <button class="tbtn" id="btnMin" title="最小化">&#8211;</button>
+    <button class="tbtn tbtn-close" id="btnClose" title="关闭">&#10005;</button>
+  </div>
+</header>
+
+<!-- ══════════ 侧边导航 ══════════ -->
+<nav class="sidebar" id="sidebar">
+  <button class="nav-item active" data-page="dashboard"><span class="nav-ico">🏠</span><span class="nav-txt">首页</span></button>
+  <button class="nav-item" data-page="monitor"><span class="nav-ico">📊</span><span class="nav-txt">监控</span></button>
+  <button class="nav-item" data-page="tools"><span class="nav-ico">🧰</span><span class="nav-txt">工具</span></button>
+  <button class="nav-item" data-page="apps"><span class="nav-ico">🎮</span><span class="nav-txt">小玩意</span></button>
+  <button class="nav-item" data-page="about"><span class="nav-ico">💌</span><span class="nav-txt">关于</span></button>
+  <div class="nav-mascot" title="Talent 酱">🐰</div>
+</nav>
+
+<!-- ══════════ 主内容区 ══════════ -->
+<main class="main">
+
+  <!-- ── 首页 ── -->
+  <section class="page active" id="page-dashboard">
+    <div class="hero glass">
+      <div class="hero-left">
+        <div class="hero-greet" id="heroGreet">你好呀</div>
+        <div class="hero-name">这里是 <b>Talent</b> 工具箱 ✨</div>
+        <div class="hero-quote" id="heroQuote">「今天的风儿甚是喧嚣呢」</div>
+        <div class="hero-time">
+          <span class="hero-clock" id="heroClock">00:00:00</span>
+          <span class="hero-date" id="heroDate">----年--月--日 星期-</span>
+        </div>
+      </div>
+      <div class="hero-mascot" aria-hidden="true">
+        <svg viewBox="0 0 200 200" class="mascot-svg">
+          <defs>
+            <linearGradient id="mHat" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ff9a9e"/><stop offset="100%" stop-color="#fecfef"/>
+            </linearGradient>
+            <linearGradient id="mHair" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#6d3fd4"/>
+            </linearGradient>
+          </defs>
+          <!-- 猫耳 -->
+          <path d="M42,78 L20,28 L78,52 Z" fill="url(#mHair)"/>
+          <path d="M158,78 L180,28 L122,52 Z" fill="url(#mHair)"/>
+          <path d="M42,78 L28,42 L66,56 Z" fill="#ff9a9e" opacity="0.9"/>
+          <path d="M158,78 L172,42 L134,56 Z" fill="#ff9a9e" opacity="0.9"/>
+          <!-- 头发 -->
+          <path d="M40,90 C30,60 70,34 100,34 C130,34 170,60 160,90 C160,120 140,96 100,96 C60,96 40,120 40,90 Z" fill="url(#mHair)"/>
+          <!-- 脸 -->
+          <ellipse cx="100" cy="112" rx="56" ry="50" fill="#ffe9f3"/>
+          <!-- 眼睛 -->
+          <g class="mascot-eyes">
+            <ellipse cx="80" cy="108" rx="9" ry="12" fill="#3b2a5a"/>
+            <ellipse cx="120" cy="108" rx="9" ry="12" fill="#3b2a5a"/>
+            <circle cx="83" cy="103" r="3.2" fill="#fff"/>
+            <circle cx="123" cy="103" r="3.2" fill="#fff"/>
+          </g>
+          <!-- 腮红 -->
+          <ellipse cx="62" cy="126" rx="9" ry="5.5" fill="#ffb3c7" opacity="0.75"/>
+          <ellipse cx="138" cy="126" rx="9" ry="5.5" fill="#ffb3c7" opacity="0.75"/>
+          <!-- 嘴 -->
+          <path d="M92,134 Q100,142 108,134" stroke="#d4688a" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- 蝴蝶结 -->
+          <path d="M100,74 L100,52 M100,63 C88,50 70,54 66,68 C82,66 92,70 100,78 C108,70 118,66 134,68 C130,54 112,50 100,63 Z" fill="#ff6b9d" stroke="#ff4d88" stroke-width="2"/>
+          <circle cx="100" cy="64" r="5" fill="#ff4d88"/>
+          <!-- 星星 -->
+          <path class="mascot-star s1" d="M30,150 l3.5,7 7,3.5 -7,3.5 -3.5,7 -3.5,-7 -7,-3.5 7,-3.5 Z" fill="#ffd94d"/>
+          <path class="mascot-star s2" d="M168,140 l2.8,5.6 5.6,2.8 -5.6,2.8 -2.8,5.6 -2.8,-5.6 -5.6,-2.8 5.6,-2.8 Z" fill="#7dd3fc"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="stat-card glass" data-tip="CPU 使用率">
+        <div class="ring" id="ringCpu">
+          <svg viewBox="0 0 96 96"><circle class="ring-bg" cx="48" cy="48" r="40"/><circle class="ring-fg" id="ringCpuFg" cx="48" cy="48" r="40"/></svg>
+          <div class="ring-num"><b id="cpuNum">0</b><i>%</i></div>
+        </div>
+        <div class="stat-label">🧠 CPU</div>
+      </div>
+      <div class="stat-card glass" data-tip="内存使用率">
+        <div class="ring" id="ringMem">
+          <svg viewBox="0 0 96 96"><circle class="ring-bg" cx="48" cy="48" r="40"/><circle class="ring-fg" id="ringMemFg" cx="48" cy="48" r="40"/></svg>
+          <div class="ring-num"><b id="memNum">0</b><i>%</i></div>
+        </div>
+        <div class="stat-label">💾 内存</div>
+      </div>
+      <div class="stat-card glass">
+        <div class="bar-wrap">
+          <div class="bar-head"><span>💿 磁盘</span><b id="diskPct">0%</b></div>
+          <div class="bar"><div class="bar-fill" id="diskBar"></div></div>
+          <div class="bar-sub"><span id="diskUsed">0</span><span id="diskTotal">0</span></div>
+        </div>
+      </div>
+      <div class="stat-card glass">
+        <div class="bar-wrap">
+          <div class="bar-head"><span>🌐 网络</span><b id="netSpeed">0 B/s</b></div>
+          <div class="bar-sub net-sub"><span>↓ <b id="netDown">0 B/s</b></span><span>↑ <b id="netUp">0 B/s</b></span></div>
+          <div class="net-ping" id="netPing">延迟 -- ms</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-row">
+      <button class="quick glass" data-jump="monitor">📊 实时监控</button>
+      <button class="quick glass" data-jump="tools">🧰 内存清理</button>
+      <button class="quick glass" data-jump="apps">🍅 番茄钟</button>
+      <button class="quick glass" data-jump="about">💌 关于我</button>
+    </div>
+  </section>
+
+  <!-- ── 监控 ── -->
+  <section class="page" id="page-monitor">
+    <div class="page-head">
+      <h2>📊 硬件监控</h2>
+      <p>实时掌握电脑状态，一切尽在掌握之中～</p>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card glass">
+        <div class="chart-title">🧠 CPU 使用率 <b class="chart-now" id="cpuNow">0%</b></div>
+        <canvas id="chartCpu" height="150"></canvas>
+      </div>
+      <div class="chart-card glass">
+        <div class="chart-title">💾 内存使用率 <b class="chart-now" id="memNow">0%</b></div>
+        <canvas id="chartMem" height="150"></canvas>
+      </div>
+      <div class="chart-card glass chart-wide">
+        <div class="chart-title">🌐 网络速度 <b class="chart-now" id="netNow">--</b></div>
+        <canvas id="chartNet" height="150"></canvas>
+      </div>
+    </div>
+    <div class="info-grid">
+      <div class="info-card glass">
+        <div class="chart-title">🖥️ 系统信息</div>
+        <table class="kv">
+          <tbody id="sysinfoBody"></tbody>
+        </table>
+      </div>
+      <div class="info-card glass">
+        <div class="chart-title">💿 磁盘分区</div>
+        <div id="diskList" class="disk-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 工具 ── -->
+  <section class="page" id="page-tools">
+    <div class="page-head">
+      <h2>🧰 系统工具</h2>
+      <p>轻量实用的系统优化小帮手，放心使用～</p>
+    </div>
+    <div class="tool-grid">
+      <div class="tool-card glass">
+        <div class="tool-ico">🫧</div>
+        <div class="tool-title">内存清理</div>
+        <div class="tool-desc">释放工作集，让系统喘口气</div>
+        <div class="mem-meter"><span>当前占用</span><b id="memBefore">--</b></div>
+        <button class="btn primary" id="btnCleanMem">开始清理</button>
+        <div class="tool-result" id="memResult"></div>
+      </div>
+      <div class="tool-card glass">
+        <div class="tool-ico">🧹</div>
+        <div class="tool-title">临时文件清理</div>
+        <div class="tool-desc">扫描并清理系统临时文件</div>
+        <div class="mem-meter"><span>临时文件</span><b id="tempSize">--</b></div>
+        <div class="btn-row">
+          <button class="btn ghost" id="btnScanTemp">扫描</button>
+          <button class="btn danger" id="btnCleanTemp" disabled>清理</button>
+        </div>
+        <div class="tool-result" id="tempResult"></div>
+      </div>
+      <div class="tool-card glass">
+        <div class="tool-ico">⚙️</div>
+        <div class="tool-title">进程管理</div>
+        <div class="tool-desc">内存占用 Top 10 进程</div>
+        <button class="btn ghost" id="btnRefreshProc">刷新列表</button>
+        <div class="proc-list" id="procList"></div>
+      </div>
+      <div class="tool-card glass">
+        <div class="tool-ico">🚀</div>
+        <div class="tool-title">启动项</div>
+        <div class="tool-desc">开机自启程序一览（只读）</div>
+        <button class="btn ghost" id="btnRefreshStartup">加载列表</button>
+        <div class="proc-list" id="startupList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 小玩意 ── -->
+  <section class="page" id="page-apps">
+    <div class="page-head">
+      <h2>🎮 小玩意</h2>
+      <p>摸鱼学习两不误的轻量小工具集合～</p>
+    </div>
+    <div class="apps-grid">
+      <div class="app-card glass">
+        <div class="app-ico">🔢</div>
+        <div class="app-title">计算器</div>
+        <div class="calc">
+          <div class="calc-screen" id="calcScreen">0</div>
+          <div class="calc-grid" id="calcGrid"></div>
+        </div>
+      </div>
+      <div class="app-card glass">
+        <div class="app-ico">🍅</div>
+        <div class="app-title">番茄钟</div>
+        <div class="pomodoro">
+          <svg viewBox="0 0 200 200" class="pomo-ring">
+            <circle class="pomo-bg" cx="100" cy="100" r="84"/>
+            <circle class="pomo-fg" id="pomoFg" cx="100" cy="100" r="84"/>
+          </svg>
+          <div class="pomo-center">
+            <b id="pomoTime">25:00</b>
+            <span id="pomoState">准备开始</span>
+          </div>
+          <div class="pomo-btns">
+            <button class="btn primary" id="pomoStart">开始</button>
+            <button class="btn ghost" id="pomoReset">重置</button>
+          </div>
+          <div class="pomo-modes">
+            <button class="mode active" data-min="25">25分</button>
+            <button class="mode" data-min="10">10分</button>
+            <button class="mode" data-min="5">5分</button>
+          </div>
+        </div>
+      </div>
+      <div class="app-card glass">
+        <div class="app-ico">🎨</div>
+        <div class="app-title">颜色工具</div>
+        <div class="color-tool">
+          <input type="color" id="colorPick" value="#8b5cf6">
+          <div class="palette" id="palette"></div>
+          <div class="color-code" id="colorCode">#8b5cf6</div>
+          <button class="btn ghost" id="btnCopyColor">复制颜色</button>
+        </div>
+      </div>
+      <div class="app-card glass">
+        <div class="app-ico">📝</div>
+        <div class="app-title">字符统计</div>
+        <textarea class="count-area" id="countArea" placeholder="在这里输入或粘贴文字…" rows="5"></textarea>
+        <div class="count-row">
+          <span>字数 <b id="cChars">0</b></span>
+          <span>字符 <b id="cAll">0</b></span>
+          <span>行数 <b id="cLines">0</b></span>
+        </div>
+      </div>
+      <div class="app-card glass app-wide">
+        <div class="app-ico">📋</div>
+        <div class="app-title">待办清单 <span class="todo-tip">（保存在本地）</span></div>
+        <div class="todo">
+          <div class="todo-add">
+            <input type="text" id="todoInput" placeholder="添加一件想做的事…" maxlength="60">
+            <button class="btn primary" id="btnTodoAdd">＋</button>
+          </div>
+          <ul class="todo-list" id="todoList"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 关于 ── -->
+  <section class="page" id="page-about">
+    <div class="about-hero glass">
+      <div class="about-logo">✨</div>
+      <h1>Talent <span>工具箱</span></h1>
+      <div class="about-ver">v1.0.0</div>
+      <p class="about-desc">一款简洁可爱的桌面小工具箱<br>毛玻璃质感 · 元气满满 · 为你而生</p>
+      <div class="about-devs">
+        <div class="dev-card glass-inner">
+          <div class="dev-ico">💬</div>
+          <div class="dev-label">开发者 QQ</div>
+          <div class="dev-val" id="qqText">3145385062</div>
+          <button class="btn ghost sm" data-copy="qqText">复制 QQ</button>
+        </div>
+        <div class="dev-card glass-inner">
+          <div class="dev-ico">✉️</div>
+          <div class="dev-label">联系邮箱</div>
+          <div class="dev-val" id="mailText">talent6839@gmail.com</div>
+          <a class="btn ghost sm" href="mailto:talent6839@gmail.com">发邮件</a>
+        </div>
+      </div>
+      <div class="about-foot">Made with ❤️ by Talent · 2025</div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/pages/dashboard.js"></script>
+<script src="js/pages/monitor.js"></script>
+<script src="js/pages/tools.js"></script>
+<script src="js/pages/apps.js"></script>
+<script src="js/pages/about.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

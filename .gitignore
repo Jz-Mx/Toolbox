@@ -1,0 +1,10 @@
+# 构建产物
+build/
+*.spec
+dist/*.WebView2/
+
+# 运行时
+*.log
+__pycache__/
+*.pyc
+.pytest_cache/

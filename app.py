@@ -212,7 +212,12 @@ def clean_temp_dir():
     freed = 0
     removed = 0
     failed = 0
-    for root, dirs, files in os.walk(tdir, topdown=False):
+
+    def _onerror(err):
+        nonlocal failed
+        failed += 1
+
+    for root, dirs, files in os.walk(tdir, topdown=False, onerror=_onerror):
         if removed >= MAX_SCAN_FILES:
             break
         for f in files:
@@ -225,9 +230,12 @@ def clean_temp_dir():
                 failed += 1
             if removed >= MAX_SCAN_FILES:
                 break
+        if removed >= MAX_SCAN_FILES:
+            break
         for d in dirs:
             try:
                 shutil.rmtree(os.path.join(root, d), ignore_errors=False)
+                removed += 1
             except OSError:
                 failed += 1
     return {"freed": freed, "removed": removed, "failed": failed}
@@ -322,31 +330,39 @@ class TalentAPI:
 
     # ── 性能数据（前端每秒轮询） ──
     def get_perf(self):
-        with self._perf_lock:
-            vm = psutil.virtual_memory()
-            cpu = psutil.cpu_percent(interval=None)
-            disk = psutil.disk_usage(os.path.splitdrive(os.getcwd())[0] + "\\")
+        try:
+            with self._perf_lock:
+                vm = psutil.virtual_memory()
+                cpu = psutil.cpu_percent(interval=None)
+                disk = psutil.disk_usage(os.path.splitdrive(os.getcwd())[0] + "\\")
 
-            now = time.time()
-            net = psutil.net_io_counters()
-            down = up = 0
-            if self._net_last is not None and self._net_ts is not None:
-                dt = now - self._net_ts
-                if dt > 0:
-                    down = max(0, (net.bytes_recv - self._net_last.bytes_recv) / dt)
-                    up = max(0, (net.bytes_sent - self._net_last.bytes_sent) / dt)
-            self._net_last = net
-            self._net_ts = now
+                now = time.time()
+                net = psutil.net_io_counters()
+                down = up = 0
+                if self._net_last is not None and self._net_ts is not None:
+                    dt = now - self._net_ts
+                    if dt > 0:
+                        down = max(0, (net.bytes_recv - self._net_last.bytes_recv) / dt)
+                        up = max(0, (net.bytes_sent - self._net_last.bytes_sent) / dt)
+                self._net_last = net
+                self._net_ts = now
 
+                return {
+                    "cpu": round(cpu, 1),
+                    "mem": round(vm.percent, 1),
+                    "disk_pct": round(disk.percent, 1),
+                    "disk_used": disk.used,
+                    "disk_total": disk.total,
+                    "net_down": down,
+                    "net_up": up,
+                    "uptime": time.time() - psutil.boot_time(),
+                }
+        except Exception as e:
+            log.error("get_perf: %s", e)
             return {
-                "cpu": round(cpu, 1),
-                "mem": round(vm.percent, 1),
-                "disk_pct": round(disk.percent, 1),
-                "disk_used": disk.used,
-                "disk_total": disk.total,
-                "net_down": down,
-                "net_up": up,
-                "uptime": time.time() - psutil.boot_time(),
+                "cpu": 0.0, "mem": 0.0, "disk_pct": 0.0,
+                "disk_used": 0, "disk_total": 0,
+                "net_down": 0.0, "net_up": 0.0, "uptime": 0.0,
             }
 
     # ── 系统信息（带缓存） ──

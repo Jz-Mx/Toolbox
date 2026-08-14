@@ -216,7 +216,7 @@ def _sysinfo():
     info = {}
     try:
         info["os"] = platform.platform()
-        info["cpu_name"] = platform.processor() or "未知"
+        info["cpu_name"] = "未知"
         info["cpu_cores"] = psutil.cpu_count(logical=False) or "?"
         info["cpu_threads"] = psutil.cpu_count(logical=True) or "?"
         info["mem_total"] = psutil.virtual_memory().total
@@ -238,6 +238,7 @@ def _sysinfo():
         cpus = _ps_query("Get-CimInstance Win32_Processor | Select-Object -First 1 -ExpandProperty Name")
         if cpus:
             info["cpu_model"] = cpus[0]
+            info["cpu_name"] = cpus[0]
 
         # 内存规格（SMBIOS 类型 + 总容量 + 配置频率，如 "DDR4 16G 3800MHz"）
         try:

@@ -165,6 +165,16 @@ def _os_friendly():
 # ────────────────────────────────────────────────────────────────
 _freq_cache = (0, 0.0)  # (mhz, ts)
 _max_freq_mhz = 0       # 探测到的最高睿频（后台线程填充）
+_cpu_cache = {"pct": 0.0}  # 后台线程维护的 CPU 使用率
+
+
+def _cpu_worker():
+    """后台线程：每秒采样 CPU 使用率（interval=1.0 准确值），get_perf 读缓存。"""
+    while True:
+        try:
+            _cpu_cache["pct"] = psutil.cpu_percent(interval=1.0)
+        except Exception:
+            time.sleep(1.0)
 
 
 def _read_freq_counter():
@@ -207,29 +217,24 @@ def _detect_max_freq():
         log.warning("detect max freq: %s", e)
 
 
+def _freq_worker():
+    """后台线程：每秒刷新实时频率缓存（不阻塞 get_perf）。"""
+    while True:
+        f = _read_freq_counter()
+        if f:
+            _freq_cache = (f, time.time())
+        time.sleep(1.0)
+
+
 def start_max_freq_detect():
     threading.Thread(target=_detect_max_freq, daemon=True).start()
+    threading.Thread(target=_freq_worker, daemon=True).start()
+    threading.Thread(target=_cpu_worker, daemon=True).start()
 
 
 def real_cpu_freq_mhz():
-    """每秒最多查询一次，返回实时 MHz；失败回退 psutil 标称值。"""
-    global _freq_cache
-    now = time.time()
-    if _freq_cache[0] and now - _freq_cache[1] < 1.0:
-        return _freq_cache[0]
-    f = _read_freq_counter()
-    if f:
-        _freq_cache = (f, now)
-        return f
-    try:
-        f = psutil.cpu_freq()
-        if f and f.current:
-            mhz = int(round(f.current))
-            _freq_cache = (mhz, now)
-            return mhz
-    except Exception:
-        pass
-    return 0
+    """直接读后台线程维护的实时频率缓存（毫秒级，无子进程开销）。"""
+    return _freq_cache[0]
 
 
 def _sysinfo():
@@ -566,7 +571,7 @@ class TalentAPI:
         try:
             with self._perf_lock:
                 vm = psutil.virtual_memory()
-                cpu = psutil.cpu_percent(interval=None)
+                cpu = _cpu_cache["pct"]  # 后台线程采样（pythonnet 线程下 interval=None 恒 0）
                 disk = psutil.disk_usage(os.path.splitdrive(os.getcwd())[0] + "\\")
                 freq_mhz = real_cpu_freq_mhz()
 

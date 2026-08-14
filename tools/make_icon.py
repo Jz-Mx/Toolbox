@@ -5,6 +5,7 @@
 """
 import math
 import os
+import struct
 
 from PIL import Image, ImageDraw
 
@@ -63,8 +64,30 @@ def build(size):
 out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "talent.ico")
 os.makedirs(os.path.dirname(out), exist_ok=True)
 
-base = build(256)
-# Pillow 保存多尺寸 ICO（标准 BMP 帧，shell 兼容）
-sizes = [(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
-base.save(out, format="ICO", sizes=sizes)
-print("icon written:", os.path.abspath(out), os.path.getsize(out), "bytes, sizes:", sizes)
+sizes = [16, 24, 32, 48, 64, 128, 256]
+images = {s: build(s) for s in sizes}
+
+# 手动构造全 BMP 帧 ICO（最兼容：Windows 各版本资源管理器均正常显示）
+frames = []
+header = struct.pack("<HHH", 0, 1, len(sizes))
+offset = 6 + 16 * len(sizes)
+for s in sizes:
+    img = images[s]
+    w = h = s
+    px = img.load()
+    bmp_header = struct.pack("<IiiHHIIIIII", 40, w, h * 2, 1, 32, 0, w * h * 4, 0, 0, 0, 0)
+    pixel = bytearray()
+    for y in range(h - 1, -1, -1):  # 自下而上
+        for x in range(w):
+            r, g, b, a = px[x, y]
+            pixel += bytes((b, g, r, a))
+    mask_row = ((w + 31) // 32) * 4
+    mask = bytes(mask_row * h)
+    frame = bmp_header + bytes(pixel) + mask
+    header += struct.pack("<BBBBHHII", w % 256, h % 256, 0, 0, 1, 32, len(frame), offset)
+    frames.append(frame)
+    offset += len(frame)
+
+with open(out, "wb") as f:
+    f.write(header + b"".join(frames))
+print("icon written (BMP frames):", os.path.abspath(out), os.path.getsize(out), "bytes, sizes:", sizes)

@@ -66,6 +66,17 @@ const Dashboard = (() => {
       document.getElementById("hpMem").textContent = Math.round(p.mem) + "%";
       document.getElementById("hpDisk").textContent = Math.round(p.disk_pct) + "%";
       document.getElementById("hpNet").textContent = API.fmtSpeed(total);
+
+      // 系统详情卡
+      document.getElementById("dCpu").textContent = Math.round(p.cpu) + "%";
+      document.getElementById("dMem").textContent = Math.round(p.mem) + "%";
+      document.getElementById("dMemUse").textContent =
+        (p.mem_used != null ? UI.gb(p.mem_used) + " / " : "") + UI.gb(p.mem_total || 0);
+      document.getElementById("dDisk").textContent = Math.round(p.disk_pct) + "%";
+      document.getElementById("dDiskUse").textContent = UI.gb(p.disk_used) + " / " + UI.gb(p.disk_total);
+      document.getElementById("dDown").textContent = API.fmtSpeed(p.net_down);
+      document.getElementById("dUp").textContent = API.fmtSpeed(p.net_up);
+      document.getElementById("dUptime").textContent = UI.dur(p.uptime);
     } catch (e) {
       /* 忽略单次失败 */
     }
@@ -74,8 +85,22 @@ const Dashboard = (() => {
   async function refreshPing() {
     try {
       const r = await API.ping();
-      const el = document.getElementById("hpPing");
-      if (el && r && r.ms != null) el.textContent = r.ms + " ms";
+      if (r && r.ms != null) {
+        document.getElementById("hpPing").textContent = r.ms + " ms";
+        document.getElementById("dPing").textContent = r.ms + " ms";
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  /* 一次性加载静态系统信息 */
+  async function loadStatic() {
+    try {
+      const s = await API.getSysinfo();
+      if (!s) return;
+      document.getElementById("dCores").textContent =
+        (s.cpu_cores || "?") + " 核 / " + (s.cpu_threads || "?") + " 线程";
+      document.getElementById("dOs").textContent = String(s.os || "--").replace(/^Windows-(\d+)-[\d.]+-SP\d+.*$/, "Windows $1");
+      document.getElementById("dGpu").textContent = s.gpu || "--";
     } catch (e) { /* ignore */ }
   }
 
@@ -86,6 +111,7 @@ const Dashboard = (() => {
     tickClock();
     refreshPerf();
     refreshPing();
+    loadStatic();
 
     clearInterval(perfTimer);
     perfTimer = setInterval(() => {

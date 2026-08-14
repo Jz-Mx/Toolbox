@@ -350,6 +350,8 @@ class TalentAPI:
                 return {
                     "cpu": round(cpu, 1),
                     "mem": round(vm.percent, 1),
+                    "mem_total": vm.total,
+                    "mem_used": vm.used,
                     "disk_pct": round(disk.percent, 1),
                     "disk_used": disk.used,
                     "disk_total": disk.total,
@@ -361,6 +363,7 @@ class TalentAPI:
             log.error("get_perf: %s", e)
             return {
                 "cpu": 0.0, "mem": 0.0, "disk_pct": 0.0,
+                "mem_total": 0, "mem_used": 0,
                 "disk_used": 0, "disk_total": 0,
                 "net_down": 0.0, "net_up": 0.0, "uptime": 0.0,
             }

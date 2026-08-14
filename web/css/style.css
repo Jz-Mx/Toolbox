@@ -173,10 +173,10 @@ body { background: #14101f; }
 }
 
 .page { display: none; }
-.page.active { display: block; animation: pageIn 0.55s var(--spring-soft); }
+.page.active { display: block; animation: pageIn 0.45s var(--spring-soft); }
 @keyframes pageIn {
-  from { opacity: 0; transform: translateY(22px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from { transform: translateY(16px) scale(0.99); }
+  to   { transform: translateY(0) scale(1); }
 }
 
 .page-head { margin-bottom: 24px; }
@@ -290,6 +290,42 @@ body { background: #14101f; }
 .quick:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.09); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
 .quick:active { transform: scale(0.92); }
 
+/* ────────────── 首页系统详情卡 ────────────── */
+.detail-card {
+  margin-bottom: 16px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.detail-title {
+  font-size: 12px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px 26px;
+}
+.d-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+}
+.d-item span { color: var(--text-dim); white-space: nowrap; }
+.d-item b {
+  color: var(--text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+}
+
 /* ────────────── 监控页 ────────────── */
 .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px;
   margin-bottom: 18px;
@@ -302,7 +338,13 @@ body { background: #14101f; }
   font-size: 14.5px; font-weight: 700; margin-bottom: 14px;
 }
 .chart-now { font-size: 17px; font-weight: 800; color: var(--accent2); font-variant-numeric: tabular-nums; }
-.chart-card canvas { width: 100%; height: 150px; display: block; }
+.chart-card canvas {
+  width: 100%; height: 150px;
+  display: block;
+  background: rgba(10, 5, 28, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+}
 
 .info-grid { display: grid; grid-template-columns: 3fr 2fr; gap: 22px; }
 .info-card { padding: 26px; transition: transform 0.4s var(--spring); }
@@ -467,17 +509,17 @@ body { background: #14101f; }
 }
 .color-tool input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
 .color-tool input[type="color"]::-webkit-color-swatch { border: 2px solid rgba(255,255,255,0.22); border-radius: 18px; }
-.palette { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.palette { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 340px; }
 .palette .swatch {
-  width: 30px; height: 30px;
-  border-radius: 11px;
+  width: 22px; height: 22px;
+  border-radius: 7px;
   cursor: pointer;
-  border: 2px solid rgba(255, 255, 255, 0.16);
+  border: 2px solid rgba(255, 255, 255, 0.14);
   transition: transform 0.3s var(--spring), box-shadow 0.2s;
 }
-.palette .swatch:hover { transform: scale(1.22) rotate(-8deg); box-shadow: 0 5px 14px rgba(0,0,0,0.3); }
-.palette .swatch:active { transform: scale(0.83); }
-.palette .swatch.sel { outline: 2px solid #fff; outline-offset: 2px; }
+.palette .swatch:hover { transform: scale(1.25) rotate(-6deg); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.palette .swatch:active { transform: scale(0.82); }
+.palette .swatch.sel { outline: 2px solid #fff; outline-offset: 1px; }
 .color-code {
   font-size: 17px; font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -634,7 +676,8 @@ body { background: #14101f; }
 }
 .appearance-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
 .appearance-row input[type="color"]::-webkit-color-swatch { border: 2px solid rgba(255, 255, 255, 0.22); border-radius: 9px; }
-.palette.sm .swatch { width: 26px; height: 26px; border-radius: 9px; }
+.palette.sm { max-width: 300px; gap: 5px; }
+.palette.sm .swatch { width: 20px; height: 20px; border-radius: 6px; }
 
 /* 玻璃风格切换按钮 */
 .glass-modes { display: flex; gap: 6px; }

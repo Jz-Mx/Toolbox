@@ -24,6 +24,19 @@ const Monitor = (() => {
     if (reset) {
       ctx.scale(dpr, dpr);
       ctx.clearRect(0, 0, w, h);
+
+      // 水平网格参考线（25% / 50% / 75%）
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 6]);
+      for (let g = 1; g <= 3; g++) {
+        const gy = (h * g) / 4;
+        ctx.beginPath();
+        ctx.moveTo(0, gy);
+        ctx.lineTo(w, gy);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
     }
 
     const pad = 4;

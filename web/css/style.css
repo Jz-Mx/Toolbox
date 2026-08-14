@@ -290,46 +290,17 @@ body { background: #14101f; }
 .quick:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.09); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
 .quick:active { transform: scale(0.92); }
 
-/* ────────────── 系统详情浮动面板（纯透明） ────────────── */
+/* ────────────── 系统详情（首页内，纯透明） ────────────── */
 .detail-panel {
-  position: fixed;
-  right: 28px;
-  bottom: 26px;
-  z-index: 30;
-  max-width: 560px;
+  margin: 14px 0 0;
+  padding: 0 6px;
   background: transparent;
   border: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  transition: right 0.45s var(--spring-soft), left 0.45s var(--spring-soft);
-}
-.detail-panel.pos-left { right: auto; left: 100px; }
-.detail-pos {
-  position: absolute;
-  top: -14px; right: -4px;
-  width: 20px; height: 20px;
-  border-radius: 6px;
-  border: none;
-  background: transparent;
-  color: rgba(244, 241, 255, 0.45);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: transform 0.3s var(--spring), background 0.2s, color 0.2s;
-}
-.detail-pos:hover { background: rgba(255, 255, 255, 0.12); color: #fff; transform: scale(1.12); }
-.detail-pos:active { transform: scale(0.85); }
-.detail-title {
-  font-size: 11px;
-  color: rgba(244, 241, 255, 0.45);
-  letter-spacing: 2px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
 }
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 7px 22px;
+  gap: 7px 26px;
 }
 .d-item {
   display: flex;

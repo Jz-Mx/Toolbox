@@ -104,28 +104,6 @@ const Dashboard = (() => {
     } catch (e) { /* ignore */ }
   }
 
-  /* 详情面板位置切换（右下 / 左下，点击角落按钮循环） */
-  function bindDetailPos() {
-    const btn = document.getElementById("detailPos");
-    const panel = document.getElementById("detailPanel");
-    if (!btn || !panel || btn.dataset.bound) return;
-    btn.dataset.bound = "1";
-
-    let left = false;
-    try {
-      left = localStorage.getItem("talent_detail_pos") === "left";
-    } catch (e) { /* ignore */ }
-    panel.classList.toggle("pos-left", left);
-
-    btn.addEventListener("click", () => {
-      left = !left;
-      panel.classList.toggle("pos-left", left);
-      try {
-        localStorage.setItem("talent_detail_pos", left ? "left" : "right");
-      } catch (e) { /* ignore */ }
-    });
-  }
-
   function init() {
     document.getElementById("heroGreet").textContent = greet();
     document.getElementById("heroQuote").textContent =
@@ -134,7 +112,6 @@ const Dashboard = (() => {
     refreshPerf();
     refreshPing();
     loadStatic();
-    bindDetailPos();
 
     clearInterval(perfTimer);
     perfTimer = setInterval(() => {

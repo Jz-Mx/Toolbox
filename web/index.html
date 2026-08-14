@@ -82,6 +82,23 @@
       </div>
     </div>
 
+    <div class="detail-panel">
+      <div class="detail-grid">
+        <div class="d-item"><span>CPU</span><b id="dCpu">--</b></div>
+        <div class="d-item"><span>核心</span><b id="dCores">--</b></div>
+        <div class="d-item"><span>内存</span><b id="dMem">--</b></div>
+        <div class="d-item"><span>内存用量</span><b id="dMemUse">--</b></div>
+        <div class="d-item"><span>磁盘</span><b id="dDisk">--</b></div>
+        <div class="d-item"><span>磁盘用量</span><b id="dDiskUse">--</b></div>
+        <div class="d-item"><span>下行</span><b id="dDown">--</b></div>
+        <div class="d-item"><span>上行</span><b id="dUp">--</b></div>
+        <div class="d-item"><span>延迟</span><b id="dPing">--</b></div>
+        <div class="d-item"><span>开机</span><b id="dUptime">--</b></div>
+        <div class="d-item"><span>系统</span><b id="dOs">--</b></div>
+        <div class="d-item"><span>显卡</span><b id="dGpu">--</b></div>
+      </div>
+    </div>
+
     <div class="dash-grid">
       <div class="quick glass" data-jump="monitor">实时监控</div>
       <div class="quick glass" data-jump="tools">内存清理</div>
@@ -295,28 +312,6 @@
   </section>
 
 </main>
-
-<!-- 系统详情浮动面板（无毛玻璃，可切换左右位置） -->
-<div class="detail-panel" id="detailPanel">
-  <button class="detail-pos" id="detailPos" title="切换位置">
-    <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4 2.5 8 6 12"/><path d="M10 4l3.5 4L10 12"/></svg>
-  </button>
-  <div class="detail-title">系统详情</div>
-  <div class="detail-grid">
-    <div class="d-item"><span>CPU</span><b id="dCpu">--</b></div>
-    <div class="d-item"><span>核心</span><b id="dCores">--</b></div>
-    <div class="d-item"><span>内存</span><b id="dMem">--</b></div>
-    <div class="d-item"><span>内存用量</span><b id="dMemUse">--</b></div>
-    <div class="d-item"><span>磁盘</span><b id="dDisk">--</b></div>
-    <div class="d-item"><span>磁盘用量</span><b id="dDiskUse">--</b></div>
-    <div class="d-item"><span>下行</span><b id="dDown">--</b></div>
-    <div class="d-item"><span>上行</span><b id="dUp">--</b></div>
-    <div class="d-item"><span>延迟</span><b id="dPing">--</b></div>
-    <div class="d-item"><span>开机</span><b id="dUptime">--</b></div>
-    <div class="d-item"><span>系统</span><b id="dOs">--</b></div>
-    <div class="d-item"><span>显卡</span><b id="dGpu">--</b></div>
-  </div>
-</div>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>

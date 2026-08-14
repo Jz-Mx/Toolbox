@@ -35,6 +35,7 @@ const Dashboard = (() => {
   let memSpecText = "";
   let osText = "";
   let uptimeText = "";
+  let gpuText = "";
   let lastDown = 0, lastUp = 0, lastPing = null;
 
   function greet() {
@@ -71,13 +72,14 @@ const Dashboard = (() => {
       document.getElementById("hpDisk").textContent = Math.round(p.disk_pct) + "%";
       document.getElementById("hpNet").textContent = API.fmtSpeed(total);
 
-      // 系统详情卡：CPU 型号 + 最高频率（睿频，探测失败则用实时值）
-      const freqMhz = cpuMax || p.cpu_freq_mhz;
+      // 系统详情卡
+      // CPU：型号 + 使用率（如 "i5-12600KF 15%"）
       document.getElementById("dCpu").textContent =
-        (freqMhz ? cpuModel + " " + (freqMhz / 1000).toFixed(1) + " GHz" : cpuModel);
-      // 核心：静态 + CPU 使用率（如 "10核 / 16线程 25%"）
+        cpuModel + "  " + Math.round(p.cpu) + "%";
+      // 核心：核心/线程 + 频率（如 "10核 / 16线程 3.7 GHz"）
+      const freqMhz = cpuMax || p.cpu_freq_mhz;
       document.getElementById("dCores").textContent =
-        (coresText ? coresText + "  " : "") + Math.round(p.cpu) + "%";
+        (coresText ? coresText + "  " : "") + (freqMhz ? (freqMhz / 1000).toFixed(1) + " GHz" : "");
       // 内存：规格 + 使用率（如 "DDR4 16G 3800MHz 58%"）
       document.getElementById("dMem").textContent =
         (memSpecText ? memSpecText + "  " : "") + Math.round(p.mem) + "%";
@@ -86,6 +88,9 @@ const Dashboard = (() => {
       updateNet();
       uptimeText = UI.dur(p.uptime);
       updateUptimeOs();
+      // 显卡：名称 + GPU 使用率（如 "NVIDIA GeForce GTX 1080 Ti 10%"）
+      document.getElementById("dGpu").textContent =
+        (gpuText ? gpuText + "  " : "") + Math.round(p.gpu_util || 0) + "%";
     } catch (e) {
       /* 忽略单次失败 */
     }
@@ -141,7 +146,7 @@ const Dashboard = (() => {
       coresText = (s.cpu_cores || "?") + "核 / " + (s.cpu_threads || "?") + "线程";
       memSpecText = s.mem_spec || "";
       osText = s.os || "--";
-      document.getElementById("dGpu").textContent = String(s.gpu || "--").split(" / ")[0];
+      gpuText = String(s.gpu || "--").split(" / ")[0];
       updateUptimeOs();
       // 全分区用量："C: 64 GB / 117 GB · D: 230 GB / 1024 GB"
       if (s.disks && s.disks.length) {

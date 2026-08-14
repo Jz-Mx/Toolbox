@@ -170,6 +170,46 @@ def _os_friendly():
 _freq_cache = (0, 0.0)  # (mhz, ts)
 _max_freq_mhz = 0       # 探测到的最高睿频（后台线程填充）
 _cpu_cache = {"pct": 0.0}  # 后台线程维护的 CPU 使用率
+_gpu_cache = {"pct": 0.0}  # 后台线程维护的 GPU 使用率
+
+
+def _read_gpu_util():
+    """GPU 使用率：nvidia-smi 优先，失败回退性能计数器。"""
+    try:
+        r = subprocess.run(
+            ["nvidia-smi", "--query-gpu=utilization.gpu", "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=3,
+            creationflags=_NO_WINDOW,
+        )
+        for line in r.stdout.splitlines():
+            v = line.strip()
+            if v.replace(".", "", 1).isdigit():
+                return min(100.0, float(v))
+    except Exception:
+        pass
+    try:
+        r = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command",
+             "(Get-Counter '\\GPU Engine(*)\\Utilization Percentage' -ErrorAction SilentlyContinue).CounterSamples | Measure-Object -Property CookedValue -Sum | Select-Object -ExpandProperty Sum"],
+            capture_output=True, text=True, timeout=5,
+            creationflags=_NO_WINDOW,
+        )
+        v = r.stdout.strip()
+        if v:
+            return min(100.0, float(v))
+    except Exception:
+        pass
+    return 0.0
+
+
+def _gpu_worker():
+    """后台线程：每 2 秒采样 GPU 使用率。"""
+    while True:
+        try:
+            _gpu_cache["pct"] = _read_gpu_util()
+        except Exception:
+            pass
+        time.sleep(2.0)
 
 
 def _cpu_worker():
@@ -235,6 +275,7 @@ def start_max_freq_detect():
     threading.Thread(target=_detect_max_freq, daemon=True).start()
     threading.Thread(target=_freq_worker, daemon=True).start()
     threading.Thread(target=_cpu_worker, daemon=True).start()
+    threading.Thread(target=_gpu_worker, daemon=True).start()
 
 
 def real_cpu_freq_mhz():
@@ -600,6 +641,7 @@ class TalentAPI:
                 return {
                     "cpu": round(cpu, 1),
                     "cpu_freq_mhz": freq_mhz,
+                    "gpu_util": round(_gpu_cache["pct"], 1),
                     "mem": round(vm.percent, 1),
                     "mem_total": vm.total,
                     "mem_used": vm.used,
@@ -613,7 +655,7 @@ class TalentAPI:
         except Exception as e:
             log.error("get_perf: %s", e)
             return {
-                "cpu": 0.0, "cpu_freq_mhz": 0,
+                "cpu": 0.0, "cpu_freq_mhz": 0, "gpu_util": 0.0,
                 "mem": 0.0, "disk_pct": 0.0,
                 "mem_total": 0, "mem_used": 0,
                 "disk_used": 0, "disk_total": 0,

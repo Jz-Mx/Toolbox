@@ -106,10 +106,25 @@ const Settings = (() => {
     renderModes();
     syncBlur();
 
-    const pick = document.getElementById("accentPick");
-    if (!pick || pick.dataset.bound) return;
-    pick.dataset.bound = "1";
+    const toggle = document.getElementById("colorToggle");
+    const pop = document.getElementById("colorPop");
+    if (!toggle || toggle.dataset.bound) return;
+    toggle.dataset.bound = "1";
 
+    // 强调色按钮：点击展开/收起色盘
+    toggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      pop.hidden = !pop.hidden;
+      toggle.classList.toggle("open", !pop.hidden);
+    });
+    document.addEventListener("click", (e) => {
+      if (!pop.hidden && !pop.contains(e.target) && !toggle.contains(e.target)) {
+        pop.hidden = true;
+        toggle.classList.remove("open");
+      }
+    });
+
+    const pick = document.getElementById("accentPick");
     pick.addEventListener("input", () => {
       accent = normalize(pick.value);
       apply();
@@ -146,19 +161,26 @@ const Settings = (() => {
     });
   }
 
-  /* 渲染色板 */
+  /* 渲染色板（展开面板内）并同步色块按钮 */
   function renderAccent() {
     const palette = document.getElementById("accentPalette");
     const pick = document.getElementById("accentPick");
+    const dot = document.getElementById("ctDot");
     if (!palette || !pick) return;
     palette.innerHTML = PRESETS.map((c) =>
       `<div class="swatch ${c === accent ? "sel" : ""}" data-c="${c}" style="background:${c}"></div>`).join("");
     pick.value = accent;
+    if (dot) dot.style.background = accent;
     palette.onclick = (e) => {
       const s = e.target.closest(".swatch");
       if (!s) return;
       pick.value = s.dataset.c;
       pick.dispatchEvent(new Event("input"));
+      // 选中后收起色盘
+      const pop = document.getElementById("colorPop");
+      const toggle = document.getElementById("colorToggle");
+      if (pop) pop.hidden = true;
+      if (toggle) toggle.classList.remove("open");
     };
   }
 

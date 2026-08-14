@@ -290,14 +290,37 @@ body { background: #14101f; }
 .quick:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.09); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
 .quick:active { transform: scale(0.92); }
 
-/* ────────────── 首页系统详情卡 ────────────── */
-.detail-card {
-  margin-bottom: 16px;
-  padding: 18px 22px;
+/* ────────────── 系统详情浮动面板 ────────────── */
+.detail-panel {
+  position: fixed;
+  right: 28px;
+  bottom: 26px;
+  z-index: 30;
+  max-width: 520px;
+  background: rgba(12, 7, 26, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px 20px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  transition: right 0.45s var(--spring-soft), left 0.45s var(--spring-soft);
 }
+.detail-panel.pos-left { right: auto; left: 100px; }
+.detail-pos {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 22px; height: 22px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.3s var(--spring), background 0.2s, color 0.2s;
+}
+.detail-pos:hover { background: rgba(255, 255, 255, 0.14); color: var(--text); transform: scale(1.12) rotate(8deg); }
+.detail-pos:active { transform: scale(0.85); }
 .detail-title {
   font-size: 12px;
   color: var(--text-dim);
@@ -306,7 +329,7 @@ body { background: #14101f; }
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px 26px;
+  gap: 9px 24px;
 }
 .d-item {
   display: flex;
@@ -678,6 +701,63 @@ body { background: #14101f; }
 .appearance-row input[type="color"]::-webkit-color-swatch { border: 2px solid rgba(255, 255, 255, 0.22); border-radius: 9px; }
 .palette.sm { max-width: 300px; gap: 5px; }
 .palette.sm .swatch { width: 20px; height: 20px; border-radius: 6px; }
+
+/* 强调色折叠按钮 + 展开色盘 */
+.color-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: transform 0.3s var(--spring), background 0.2s, border-color 0.2s;
+}
+.color-toggle:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
+.color-toggle:active { transform: scale(0.92); }
+.ct-dot {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  background: var(--accent);
+  flex-shrink: 0;
+}
+.ct-arrow { opacity: 0.6; transition: transform 0.3s var(--spring); }
+.color-toggle.open .ct-arrow { transform: rotate(180deg); }
+
+.color-pop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: rgba(14, 9, 28, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  animation: popIn 0.3s var(--spring-soft);
+}
+.color-pop[hidden] { display: none; }
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.color-pop-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.color-pop-row input[type="color"] {
+  width: 34px; height: 34px;
+  border: none; border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+.color-pop-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.color-pop-row input[type="color"]::-webkit-color-swatch { border: 2px solid rgba(255, 255, 255, 0.22); border-radius: 9px; }
 
 /* 玻璃风格切换按钮 */
 .glass-modes { display: flex; gap: 6px; }

@@ -82,24 +82,6 @@
       </div>
     </div>
 
-    <div class="detail-card glass">
-      <div class="detail-title">系统详情</div>
-      <div class="detail-grid">
-        <div class="d-item"><span>CPU</span><b id="dCpu">--</b></div>
-        <div class="d-item"><span>核心</span><b id="dCores">--</b></div>
-        <div class="d-item"><span>内存</span><b id="dMem">--</b></div>
-        <div class="d-item"><span>内存用量</span><b id="dMemUse">--</b></div>
-        <div class="d-item"><span>磁盘</span><b id="dDisk">--</b></div>
-        <div class="d-item"><span>磁盘用量</span><b id="dDiskUse">--</b></div>
-        <div class="d-item"><span>下行</span><b id="dDown">--</b></div>
-        <div class="d-item"><span>上行</span><b id="dUp">--</b></div>
-        <div class="d-item"><span>延迟</span><b id="dPing">--</b></div>
-        <div class="d-item"><span>开机</span><b id="dUptime">--</b></div>
-        <div class="d-item"><span>系统</span><b id="dOs">--</b></div>
-        <div class="d-item"><span>显卡</span><b id="dGpu">--</b></div>
-      </div>
-    </div>
-
     <div class="dash-grid">
       <div class="quick glass" data-jump="monitor">实时监控</div>
       <div class="quick glass" data-jump="tools">内存清理</div>
@@ -277,16 +259,22 @@
       <div class="appearance">
         <div class="appearance-title">外观</div>
         <div class="appearance-row">
-          <span class="appearance-label">强调色</span>
-          <div class="palette sm" id="accentPalette"></div>
-          <input type="color" id="accentPick" value="#8b5cf6" title="自定义">
-        </div>
-        <div class="appearance-row">
-          <span class="appearance-label">玻璃风格</span>
+          <button class="color-toggle" id="colorToggle" title="选择强调色">
+            <span class="ct-dot" id="ctDot"></span>
+            <span>强调色</span>
+            <svg class="ct-arrow" viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 4.5 6 7.5 9 4.5"/></svg>
+          </button>
           <div class="glass-modes" id="glassModes">
             <button class="mode active" data-mode="frost">毛玻璃</button>
             <button class="mode" data-mode="water">水玻璃</button>
             <button class="mode" data-mode="matte">磨砂</button>
+          </div>
+        </div>
+        <div class="color-pop" id="colorPop" hidden>
+          <div class="palette sm" id="accentPalette"></div>
+          <div class="color-pop-row">
+            <input type="color" id="accentPick" value="#8b5cf6" title="自定义">
+            <span class="appearance-label">自定义</span>
           </div>
         </div>
         <div class="appearance-row">
@@ -307,6 +295,28 @@
   </section>
 
 </main>
+
+<!-- 系统详情浮动面板（无毛玻璃，可切换左右位置） -->
+<div class="detail-panel" id="detailPanel">
+  <button class="detail-pos" id="detailPos" title="切换位置">
+    <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4 2.5 8 6 12"/><path d="M10 4l3.5 4L10 12"/></svg>
+  </button>
+  <div class="detail-title">系统详情</div>
+  <div class="detail-grid">
+    <div class="d-item"><span>CPU</span><b id="dCpu">--</b></div>
+    <div class="d-item"><span>核心</span><b id="dCores">--</b></div>
+    <div class="d-item"><span>内存</span><b id="dMem">--</b></div>
+    <div class="d-item"><span>内存用量</span><b id="dMemUse">--</b></div>
+    <div class="d-item"><span>磁盘</span><b id="dDisk">--</b></div>
+    <div class="d-item"><span>磁盘用量</span><b id="dDiskUse">--</b></div>
+    <div class="d-item"><span>下行</span><b id="dDown">--</b></div>
+    <div class="d-item"><span>上行</span><b id="dUp">--</b></div>
+    <div class="d-item"><span>延迟</span><b id="dPing">--</b></div>
+    <div class="d-item"><span>开机</span><b id="dUptime">--</b></div>
+    <div class="d-item"><span>系统</span><b id="dOs">--</b></div>
+    <div class="d-item"><span>显卡</span><b id="dGpu">--</b></div>
+  </div>
+</div>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>

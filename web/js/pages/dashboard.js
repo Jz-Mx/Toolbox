@@ -30,6 +30,7 @@ const Dashboard = (() => {
   let pingTimer = null;
   let lastNet = null;
   let cpuModel = "CPU";
+  let lastDown = 0, lastUp = 0, lastPing = null;
 
   function greet() {
     const h = new Date().getHours();
@@ -74,12 +75,23 @@ const Dashboard = (() => {
       document.getElementById("dMem").textContent =
         UI.gb(p.mem_used || 0) + " / " + UI.gb(p.mem_total || 0);
       document.getElementById("dDisk").textContent = Math.round(p.disk_pct) + "%";
-      document.getElementById("dDown").textContent = API.fmtSpeed(p.net_down);
-      document.getElementById("dUp").textContent = API.fmtSpeed(p.net_up);
+      lastDown = p.net_down;
+      lastUp = p.net_up;
+      updateNet();
       document.getElementById("dUptime").textContent = UI.dur(p.uptime);
     } catch (e) {
       /* 忽略单次失败 */
     }
+  }
+
+  /* 网络行：↓下行 ↑上行 延迟 */
+  function updateNet() {
+    const el = document.getElementById("dNet");
+    if (!el) return;
+    el.textContent =
+      "↓" + API.fmtSpeed(lastDown) +
+      "  ↑" + API.fmtSpeed(lastUp) +
+      (lastPing != null ? "  " + lastPing + "ms" : "");
   }
 
   async function refreshPing() {
@@ -87,7 +99,8 @@ const Dashboard = (() => {
       const r = await API.ping();
       if (r && r.ms != null) {
         document.getElementById("hpPing").textContent = r.ms + " ms";
-        document.getElementById("dPing").textContent = r.ms + " ms";
+        lastPing = r.ms;
+        updateNet();
       }
     } catch (e) { /* ignore */ }
   }

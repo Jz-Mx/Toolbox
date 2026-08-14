@@ -30,6 +30,7 @@ const Dashboard = (() => {
   let pingTimer = null;
   let lastNet = null;
   let cpuModel = "CPU";
+  let cpuMax = 0;
   let lastDown = 0, lastUp = 0, lastPing = null;
 
   function greet() {
@@ -69,9 +70,10 @@ const Dashboard = (() => {
       document.getElementById("hpDisk").textContent = Math.round(p.disk_pct) + "%";
       document.getElementById("hpNet").textContent = API.fmtSpeed(total);
 
-      // 系统详情卡：CPU 型号 + 实时频率（每秒刷新）
+      // 系统详情卡：CPU 型号 + 最高频率（睿频，探测失败则用实时值）
+      const freqMhz = cpuMax || p.cpu_freq_mhz;
       document.getElementById("dCpu").textContent =
-        (p.cpu_freq_mhz ? cpuModel + " " + (p.cpu_freq_mhz / 1000).toFixed(1) + " GHz" : cpuModel);
+        (freqMhz ? cpuModel + " " + (freqMhz / 1000).toFixed(1) + " GHz" : cpuModel);
       document.getElementById("dMem").textContent =
         UI.gb(p.mem_used || 0) + " / " + UI.gb(p.mem_total || 0);
       document.getElementById("dDisk").textContent = Math.round(p.disk_pct) + "%";
@@ -115,12 +117,15 @@ const Dashboard = (() => {
     return parts.length > 1 ? parts.slice(-2).join(" ") : m;
   }
 
-  /* 一次性加载静态系统信息 */
+  /* 一次性加载静态系统信息（睿频未就绪时延迟重试） */
+  let staticRetry = null;
+
   async function loadStatic() {
     try {
       const s = await API.getSysinfo();
       if (!s) return;
       cpuModel = shortCpu(s.cpu_model);
+      cpuMax = s.cpu_max_mhz || 0;
       document.getElementById("dCores").textContent =
         (s.cpu_cores || "?") + " 核 / " + (s.cpu_threads || "?") + " 线程";
       document.getElementById("dOs").textContent = String(s.os || "--").replace(/^Windows-(\d+)-[\d.]+-SP\d+.*$/, "Windows $1");
@@ -131,6 +136,11 @@ const Dashboard = (() => {
         document.getElementById("dDiskUse").textContent = s.disks
           .map((d) => `${d.mount.replace(":\\", "")} ${UI.gb(d.used)} / ${UI.gb(d.total)}`)
           .join("  ·  ");
+      }
+      // 睿频探测未完成时 8 秒后重试
+      if (!cpuMax) {
+        clearTimeout(staticRetry);
+        staticRetry = setTimeout(loadStatic, 8000);
       }
     } catch (e) { /* ignore */ }
   }
@@ -183,6 +193,8 @@ const Dashboard = (() => {
     pingTimer = null;
     clearTimeout(weatherTimer);
     weatherTimer = null;
+    clearTimeout(staticRetry);
+    staticRetry = null;
   }
 
   return { init, destroy };

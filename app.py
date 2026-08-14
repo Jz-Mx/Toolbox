@@ -144,6 +144,51 @@ def _ps_query(script):
 #  实时 CPU 频率（性能计数器，psutil 在 Windows 只返回标称频率）
 # ────────────────────────────────────────────────────────────────
 _freq_cache = (0, 0.0)  # (mhz, ts)
+_max_freq_mhz = 0       # 探测到的最高睿频（后台线程填充）
+
+
+def _read_freq_counter():
+    try:
+        r = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command",
+             "(Get-Counter '\\Processor Information(_Total)\\Processor Frequency' -ErrorAction SilentlyContinue).CounterSamples[0].CookedValue"],
+            capture_output=True, text=True, timeout=5,
+        )
+        v = r.stdout.strip()
+        return round(float(v)) if v else 0
+    except Exception:
+        return 0
+
+
+def _detect_max_freq():
+    """短负载让 CPU 睿频冲高，采样性能计数器最大值作为最高频率。"""
+    global _max_freq_mhz
+    try:
+        # 1.2 秒忙循环提升频率
+        end = time.time() + 1.2
+        x = 0
+        while time.time() < end:
+            for i in range(20000):
+                x += i * i
+        # 采样最大值（约 1 秒）
+        best = 0
+        for _ in range(4):
+            f = _read_freq_counter()
+            if f > best:
+                best = f
+            time.sleep(0.25)
+        if best:
+            _max_freq_mhz = best
+        else:
+            f = psutil.cpu_freq()
+            _max_freq_mhz = round(f.current or 0) if f else 0
+        log.info("cpu max freq detected: %d MHz", _max_freq_mhz)
+    except Exception as e:
+        log.warning("detect max freq: %s", e)
+
+
+def start_max_freq_detect():
+    threading.Thread(target=_detect_max_freq, daemon=True).start()
 
 
 def real_cpu_freq_mhz():
@@ -152,19 +197,10 @@ def real_cpu_freq_mhz():
     now = time.time()
     if _freq_cache[0] and now - _freq_cache[1] < 1.0:
         return _freq_cache[0]
-    try:
-        r = subprocess.run(
-            ["powershell", "-NoProfile", "-NonInteractive", "-Command",
-             "(Get-Counter '\\Processor Information(_Total)\\Processor Frequency' -ErrorAction SilentlyContinue).CounterSamples[0].CookedValue"],
-            capture_output=True, text=True, timeout=5,
-        )
-        v = r.stdout.strip()
-        if v:
-            mhz = int(round(float(v)))
-            _freq_cache = (mhz, now)
-            return mhz
-    except Exception:
-        pass
+    f = _read_freq_counter()
+    if f:
+        _freq_cache = (f, now)
+        return f
     try:
         f = psutil.cpu_freq()
         if f and f.current:
@@ -191,6 +227,7 @@ def _sysinfo():
         info["bios"] = "未知"
         info["mem_spec"] = ""
         info["cpu_model"] = ""
+        info["cpu_max_mhz"] = _max_freq_mhz
 
         # 通过 WMI 查询显卡 / 主板 / BIOS（异步线程内执行，避免卡 UI）
         gpus = _ps_query("Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name")
@@ -536,14 +573,16 @@ class TalentAPI:
                 "net_down": 0.0, "net_up": 0.0, "uptime": 0.0,
             }
 
-    # ── 系统信息（带缓存） ──
+    # ── 系统信息（带缓存；cpu_max_mhz 动态读取，探测完成后自动更新） ──
     def get_sysinfo(self):
         global _sysinfo_cache
         if _sysinfo_cache is None:
             with _sysinfo_lock:
                 if _sysinfo_cache is None:
                     _sysinfo_cache = _sysinfo()
-        return _sysinfo_cache
+        info = dict(_sysinfo_cache)
+        info["cpu_max_mhz"] = _max_freq_mhz
+        return info
 
     # ── 内存清理 ──
     def clean_memory(self):
@@ -635,6 +674,7 @@ def main():
     api = TalentAPI()
     index = os.path.join(resource_path("web"), "index.html")
     log.info("start %s v%s, web=%s", APP_NAME, APP_VERSION, index)
+    start_max_freq_detect()
 
     window = webview.create_window(
         APP_NAME,

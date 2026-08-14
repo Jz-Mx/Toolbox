@@ -798,6 +798,7 @@ def main():
         height=760,
         min_size=(960, 620),
         frameless=True,
+        easy_drag=False,  # 关闭 pywebview 整窗拖动（否则按哪都能拖）
         background_color="#171030",
     )
     api._win = window

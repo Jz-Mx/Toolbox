@@ -46,25 +46,22 @@
     else window.close();
   });
 
-  /* ── frameless 窗口拖拽（整个标题栏都可拖，排除按钮区） ── */
+  /* ── frameless 窗口拖拽（仅顶部栏 logo/名称区域可拖，其余位置不可拖） ── */
   (function bindDrag() {
-    const bar = document.querySelector(".titlebar");
-    if (!API.hasNative) return;
+    const area = document.getElementById("dragArea");
+    if (!API.hasNative || !area) return;
 
     let rafId = null;
     let startX = 0, startY = 0, winX = 0, winY = 0, dragging = false;
 
-    const startDrag = (e) => {
+    area.addEventListener("mousedown", (e) => {
       if (e.button !== 0) return;
-      // 按钮区不触发拖拽
-      if (e.target.closest(".tbtn, .titlebar-btns")) return;
       dragging = true;
       startX = e.screenX;
       startY = e.screenY;
       winX = e.screenX - e.clientX;
       winY = e.screenY - e.clientY;
-    };
-    bar.addEventListener("mousedown", startDrag);
+    });
     window.addEventListener("mousemove", (e) => {
       if (!dragging) return;
       if (rafId) return;

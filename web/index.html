@@ -111,9 +111,13 @@
       <p>实时掌握电脑状态</p>
     </div>
     <div class="chart-grid">
-      <div class="chart-card glass chart-wide">
-        <div class="chart-title">CPU / 内存使用率 <b class="chart-now" id="cmNow">0% / 0%</b></div>
-        <canvas id="chartCm" height="150"></canvas>
+      <div class="chart-card glass">
+        <div class="chart-title">CPU 使用率 <b class="chart-now" id="cpuNow">0%</b></div>
+        <canvas id="chartCpu" height="150"></canvas>
+      </div>
+      <div class="chart-card glass">
+        <div class="chart-title">内存使用率 <b class="chart-now" id="memNow">0%</b></div>
+        <canvas id="chartMem" height="150"></canvas>
       </div>
       <div class="chart-card glass chart-wide">
         <div class="chart-title">网络速度 <b class="chart-now" id="netNow">--</b></div>

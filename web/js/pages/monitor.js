@@ -82,11 +82,25 @@ const Monitor = (() => {
     ctx.shadowBlur = 0;
   }
 
+  /* 动态 Y 轴范围：让曲线铺满图表高度（高度一致） */
+  function autoRange(arr) {
+    if (!arr.length) return { lo: 0, hi: 100 };
+    const min = Math.min(...arr);
+    const max = Math.max(...arr);
+    let lo = Math.floor(min / 10) * 10;
+    let hi = Math.ceil(max / 10) * 10;
+    if (lo < 0) lo = 0;
+    if (hi - lo < 10) hi = lo + 10;
+    if (hi > 100) hi = 100;
+    return { lo, hi };
+  }
+
   function renderCharts() {
-    // CPU + 内存双线同图（同基准、同网格）
-    const cm = document.getElementById("chartCm");
-    drawLine(cm, series.cpu.data, series.cpu.color, series.cpu.fill, 100, 0, true);
-    drawLine(cm, series.mem.data, series.mem.color, null, 100, 0, false);
+    // CPU / 内存各占一图，Y 轴动态范围使曲线高度一致
+    const cpuR = autoRange(series.cpu.data);
+    drawLine(document.getElementById("chartCpu"), series.cpu.data, series.cpu.color, series.cpu.fill, cpuR.hi, cpuR.lo, true);
+    const memR = autoRange(series.mem.data);
+    drawLine(document.getElementById("chartMem"), series.mem.data, series.mem.color, series.mem.fill, memR.hi, memR.lo, true);
     const maxNet = Math.max(...series.net.down, ...series.net.up, 1);
     const c = document.getElementById("chartNet");
     // 下行线（带填充），随后叠加上行线（不重置画布、不清屏）
@@ -108,8 +122,8 @@ const Monitor = (() => {
       series.net.up.push(p.net_up);
       if (series.net.up.length > MAX) series.net.up.shift();
 
-      document.getElementById("cmNow").textContent =
-        Math.round(p.cpu) + "% / " + Math.round(p.mem) + "%";
+      document.getElementById("cpuNow").textContent = Math.round(p.cpu) + "%";
+      document.getElementById("memNow").textContent = Math.round(p.mem) + "%";
       document.getElementById("netNow").textContent =
         "↓ " + API.fmtSpeed(p.net_down) + "  ↑ " + API.fmtSpeed(p.net_up);
 

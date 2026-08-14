@@ -128,11 +128,15 @@ _sysinfo_cache = None
 _sysinfo_lock = threading.Lock()
 
 
+_NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
+
 def _ps_query(script):
     try:
         r = subprocess.run(
             ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
             capture_output=True, text=True, timeout=20,
+            creationflags=_NO_WINDOW,
         )
         lines = [l.strip() for l in r.stdout.splitlines() if l.strip()]
         return lines
@@ -183,6 +187,7 @@ def _read_freq_counter():
             ["powershell", "-NoProfile", "-NonInteractive", "-Command",
              "(Get-Counter '\\Processor Information(_Total)\\Processor Frequency' -ErrorAction SilentlyContinue).CounterSamples[0].CookedValue"],
             capture_output=True, text=True, timeout=5,
+            creationflags=_NO_WINDOW,
         )
         v = r.stdout.strip()
         return round(float(v)) if v else 0
@@ -218,12 +223,12 @@ def _detect_max_freq():
 
 
 def _freq_worker():
-    """后台线程：每秒刷新实时频率缓存（不阻塞 get_perf）。"""
+    """后台线程：每 2 秒刷新实时频率缓存（不阻塞 get_perf，无窗口）。"""
     while True:
         f = _read_freq_counter()
         if f:
             _freq_cache = (f, time.time())
-        time.sleep(1.0)
+        time.sleep(2.0)
 
 
 def start_max_freq_detect():

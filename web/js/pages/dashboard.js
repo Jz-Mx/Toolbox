@@ -189,53 +189,141 @@ const Dashboard = (() => {
     }
   }
 
-  /* 每日提问：高中数学题池（按日期固定一道），√ 打卡（localStorage 记录） */
+  /* 每日提问：高中数学题（含答案），答对点亮星星；双击重置；0 点自动换题 */
   const DAILY_QUESTIONS = [
-    "求函数 f(x) = x² - 4x + 3 的最小值。",
-    "已知 sinα = 3/5（α 为锐角），求 cosα 的值。",
-    "等差数列 {aₙ} 中 a₁=2，d=3，求 a₁₀。",
-    "等比数列 {bₙ} 中 b₁=1，q=2，求前 6 项和。",
-    "解不等式 x² - 5x + 6 < 0。",
-    "求直线 y = 2x + 1 与 x 轴的交点坐标。",
-    "圆 x² + y² = 25 上一点 (3,4)，求该点处切线的斜率。",
-    "已知向量 a=(1,2)，b=(3,-1)，求 a·b。",
-    "函数 y = 2sin(x + π/6) 的最小正周期是多少？",
-    "求 log₂8 + log₃9 的值。",
-    "从 5 名同学中选 2 名参加比赛，有多少种选法？",
-    "掷一枚骰子两次，两次点数之和为 7 的概率是多少？",
-    "已知 f(x) = x³ - 3x，求 f'(x)。",
-    "双曲线 x²/9 - y²/16 = 1 的渐近线方程是什么？",
-    "求 ∫₀¹ 3x² dx 的值。",
-    "在 △ABC 中，a=3，b=4，∠C=90°，求 c。",
-    "已知 tanθ = 2，求 (sinθ + cosθ)/(sinθ - cosθ) 的值。",
-    "函数 f(x) = x³ - 3x + 1 的单调递减区间是？",
-    "排列数 A₅³ 等于多少？",
-    "求椭圆 x²/25 + y²/9 = 1 的焦距。",
-    "log₁₀100 + log₁₀1000 等于多少？",
-    "已知复数 z = 2 + 3i，求 |z|。",
-    "抛物线 y² = 8x 的焦点坐标是？",
-    "求函数 y = 1/(x² + 1) 的最大值。",
+    { q: "求函数 f(x) = x² - 4x + 3 的最小值。", a: ["-1"] },
+    { q: "已知 sinα = 3/5（α 为锐角），求 cosα 的值。", a: ["4/5", "0.8"] },
+    { q: "等差数列 {aₙ} 中 a₁=2，d=3，求 a₁₀。", a: ["29"] },
+    { q: "等比数列 {bₙ} 中 b₁=1，q=2，求前 6 项和。", a: ["63"] },
+    { q: "解不等式 x² - 5x + 6 < 0。", a: ["2<x<3", "（2,3）", "(2,3)", "2到3", "2<x 且 x<3"] },
+    { q: "求直线 y = 2x + 1 与 x 轴的交点坐标。", a: ["-0.5", "-1/2", "(-0.5,0)", "（-0.5,0）"] },
+    { q: "圆 x² + y² = 25 上点 (3,4) 处切线斜率。", a: ["-3/4", "-0.75"] },
+    { q: "已知向量 a=(1,2)，b=(3,-1)，求 a·b。", a: ["1"] },
+    { q: "函数 y = 2sin(x + π/6) 的最小正周期？", a: ["2π", "2pi", "6.28"] },
+    { q: "求 log₂8 + log₃9 的值。", a: ["5"] },
+    { q: "从 5 名同学中选 2 名，有多少种选法？", a: ["10"] },
+    { q: "掷骰子两次，点数之和为 7 的概率？", a: ["1/6", "6/36", "0.1667", "0.17"] },
+    { q: "已知 f(x) = x³ - 3x，求 f'(x)。", a: ["3x²-3", "3x^2-3", "3x2-3"] },
+    { q: "双曲线 x²/9 - y²/16 = 1 的渐近线方程？", a: ["y=±4x/3", "4x/3", "y=4x/3"] },
+    { q: "求 ∫₀¹ 3x² dx 的值。", a: ["1"] },
+    { q: "△ABC 中 a=3，b=4，∠C=90°，求 c。", a: ["5"] },
+    { q: "tanθ = 2，求 (sinθ+cosθ)/(sinθ-cosθ)。", a: ["3"] },
+    { q: "函数 f(x) = x³ - 3x + 1 的单调递减区间？", a: ["(-1,1)", "（-1,1）", "-1<x<1", "(-1, 1)"] },
+    { q: "排列数 A₅³ 等于多少？", a: ["60"] },
+    { q: "求椭圆 x²/25 + y²/9 = 1 的焦距。", a: ["8"] },
+    { q: "log₁₀100 + log₁₀1000 等于多少？", a: ["5"] },
+    { q: "已知复数 z = 2 + 3i，求 |z|。", a: ["√13", "sqrt13", "3.61", "3.6"] },
+    { q: "抛物线 y² = 8x 的焦点坐标是？", a: ["(2,0)", "（2,0）", "2"] },
+    { q: "求函数 y = 1/(x² + 1) 的最大值。", a: ["1"] },
   ];
 
-  function loadDaily() {
+  function normAns(s) {
+    return String(s).toLowerCase()
+      .replace(/[，。、（）()]/g, " ")
+      .replace(/×/g, "*").replace(/÷/g, "/").replace(/－/g, "-")
+      .replace(/π/g, "pi").replace(/√/g, "sqrt")
+      .replace(/\s+/g, "");
+  }
+
+  function checkAnswer(input, answers) {
+    const n = normAns(input);
+    if (!n) return false;
+    for (const a of answers) {
+      const na = normAns(a);
+      if (na === n) return true;
+      const f1 = parseFloat(n), f2 = parseFloat(na);
+      if (!isNaN(f1) && !isNaN(f2) && Math.abs(f1 - f2) < 0.05) return true;
+    }
+    return false;
+  }
+
+  const DAILY_KEY = "talent_daily";
+
+  function dailyState() {
+    try { return JSON.parse(localStorage.getItem(DAILY_KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function dailySave(st) {
+    try { localStorage.setItem(DAILY_KEY, JSON.stringify(st)); } catch (e) { /* ignore */ }
+  }
+
+  function todayStr() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function pickIdx(dateStr, offset) {
+    let seed = 0;
+    for (const ch of dateStr) seed = (seed * 31 + ch.charCodeAt(0)) % 100000;
+    return (seed + offset) % DAILY_QUESTIONS.length;
+  }
+
+  function renderDaily(st) {
     const el = document.getElementById("dailyQ");
     const btn = document.getElementById("dailyCheck");
     if (!el || !btn) return;
-    const today = new Date().toISOString().slice(0, 10);
-    let seed = 0;
-    for (const ch of today) seed = (seed * 31 + ch.charCodeAt(0)) % 100000;
-    el.textContent = DAILY_QUESTIONS[seed % DAILY_QUESTIONS.length];
+    el.textContent = DAILY_QUESTIONS[st.idx].q;
+    btn.classList.toggle("done", !!st.done);
+    if (st.done) {
+      btn.style.animation = "none";
+      void btn.offsetWidth;
+      btn.style.animation = "";
+    }
+  }
 
-    const done = (() => { try { return localStorage.getItem("talent_daily_" + today) === "1"; } catch (e) { return false; } })();
-    btn.classList.toggle("done", done);
+  function loadDaily() {
+    const btn = document.getElementById("dailyCheck");
+    const input = document.getElementById("dailyInput");
+    if (!btn || !input) return;
+
+    const today = todayStr();
+    let st = dailyState();
+    if (st.date !== today) {
+      st = { date: today, idx: pickIdx(today, 0), done: false };
+      dailySave(st);
+    }
+    renderDaily(st);
 
     if (btn.dataset.bound) return;
     btn.dataset.bound = "1";
-    btn.addEventListener("click", () => {
-      try { localStorage.setItem("talent_daily_" + today, "1"); } catch (e) { /* ignore */ }
-      btn.classList.add("done");
-      UI.toast("打卡成功，今天也很棒！");
+
+    // 发送答案：答对点亮星星（Q弹动画）
+    const submit = () => {
+      const val = input.value.trim();
+      if (!val) return;
+      const cur = dailyState();
+      if (cur.date !== todayStr() || cur.done) { input.value = ""; return; }
+      if (checkAnswer(val, DAILY_QUESTIONS[cur.idx].a)) {
+        cur.done = true;
+        dailySave(cur);
+        renderDaily(cur);
+        UI.toast("答对啦！星星已点亮 ✦");
+      } else {
+        UI.toast("再想想哦，答案好像不对～");
+      }
+      input.value = "";
+    };
+    document.getElementById("dailySend").addEventListener("click", submit);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+    // 双击星星：重置题目（换一道 + 未点亮）
+    btn.addEventListener("dblclick", () => {
+      const today = todayStr();
+      const stNow = dailyState();
+      const resetIdx = pickIdx(today, (stNow.idx || 0) + 1);
+      dailySave({ date: today, idx: resetIdx, done: false });
+      renderDaily({ date: today, idx: resetIdx, done: false });
+      UI.toast("已重置题目");
     });
+
+    // 每天 0 点自动刷新
+    setInterval(() => {
+      const stNow = dailyState();
+      if (stNow.date !== todayStr()) {
+        const t = todayStr();
+        dailySave({ date: t, idx: pickIdx(t, 0), done: false });
+        renderDaily({ date: t, idx: pickIdx(t, 0), done: false });
+      }
+    }, 60000);
   }
 
   function init() {

@@ -90,11 +90,18 @@
         <button class="quick glass" data-jump="tools">内存清理</button>
         <button class="quick glass" data-jump="apps">小玩意</button>
         <button class="quick glass" data-jump="about">关于我</button>
+        <div class="quick-spacer" aria-hidden="true"></div>
       </div>
       <div class="daily glass">
         <div class="daily-title">每日提问</div>
         <div class="daily-q" id="dailyQ"></div>
-        <button class="daily-check" id="dailyCheck" title="完成打卡">✓</button>
+        <div class="daily-input">
+          <input type="text" id="dailyInput" placeholder="输入答案…" maxlength="40" autocomplete="off">
+          <button class="daily-send" id="dailySend" title="发送答案">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M3.4 20.4l17.45-7.48a1 1 0 000-1.84L3.4 3.6a.993.993 0 00-1.39.91L2 9.12c0 .5.37.93.87.99L17 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z"/></svg>
+          </button>
+        </div>
+        <button class="daily-check" id="dailyCheck" title="答对点亮星星；双击重置题目">★</button>
       </div>
     </div>
 

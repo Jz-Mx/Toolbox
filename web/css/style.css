@@ -179,6 +179,14 @@ body { background: #14101f; }
   to   { transform: translateY(0) scale(1); }
 }
 
+/* 首页：详情信息固定在页面底部（下摆着） */
+#page-dashboard {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.detail-panel { margin-top: auto; }
+
 .page-head { margin-bottom: 24px; }
 .page-head h2 { font-size: 21px; font-weight: 700; letter-spacing: 1px; }
 .page-head p { margin-top: 3px; color: var(--text-dim); font-size: 12.5px; }
@@ -302,8 +310,8 @@ body { background: #14101f; }
 
 /* ────────────── 系统详情（首页内，纯透明，靠左下） ────────────── */
 .detail-panel {
-  margin: 20px 0 0;
-  padding: 0;
+  margin-top: auto;
+  padding: 20px 0 0;
   background: transparent;
   border: none;
   max-width: 640px;

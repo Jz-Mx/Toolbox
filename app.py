@@ -40,10 +40,11 @@ def resource_path(rel=""):
 
 
 def log_path():
+    """日志写入系统临时目录（不在 exe 目录生成 talent.log）。"""
+    d = os.path.join(tempfile.gettempdir(), "Talent")
     try:
-        if hasattr(sys, "frozen"):
-            return os.path.join(os.path.dirname(sys.executable), "talent.log")
-        return os.path.join(os.path.dirname(os.path.abspath(__file__)), "talent.log")
+        os.makedirs(d, exist_ok=True)
+        return os.path.join(d, "talent.log")
     except Exception:
         return os.path.join(tempfile.gettempdir(), "talent.log")
 

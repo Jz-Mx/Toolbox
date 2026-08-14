@@ -83,8 +83,10 @@ const Monitor = (() => {
   }
 
   function renderCharts() {
-    drawLine(document.getElementById("chartCpu"), series.cpu.data, series.cpu.color, series.cpu.fill, 100, 0);
-    drawLine(document.getElementById("chartMem"), series.mem.data, series.mem.color, series.mem.fill, 100, 0);
+    // CPU + 内存双线同图（同基准、同网格）
+    const cm = document.getElementById("chartCm");
+    drawLine(cm, series.cpu.data, series.cpu.color, series.cpu.fill, 100, 0, true);
+    drawLine(cm, series.mem.data, series.mem.color, null, 100, 0, false);
     const maxNet = Math.max(...series.net.down, ...series.net.up, 1);
     const c = document.getElementById("chartNet");
     // 下行线（带填充），随后叠加上行线（不重置画布、不清屏）
@@ -106,8 +108,8 @@ const Monitor = (() => {
       series.net.up.push(p.net_up);
       if (series.net.up.length > MAX) series.net.up.shift();
 
-      document.getElementById("cpuNow").textContent = Math.round(p.cpu) + "%";
-      document.getElementById("memNow").textContent = Math.round(p.mem) + "%";
+      document.getElementById("cmNow").textContent =
+        Math.round(p.cpu) + "% / " + Math.round(p.mem) + "%";
       document.getElementById("netNow").textContent =
         "↓ " + API.fmtSpeed(p.net_down) + "  ↑ " + API.fmtSpeed(p.net_up);
 

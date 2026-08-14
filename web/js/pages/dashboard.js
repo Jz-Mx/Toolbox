@@ -68,7 +68,8 @@ const Dashboard = (() => {
       document.getElementById("hpNet").textContent = API.fmtSpeed(total);
 
       // 系统详情卡
-      document.getElementById("dCpu").textContent = Math.round(p.cpu) + "%";
+      document.getElementById("dCpu").textContent =
+        p.cpu_freq_mhz ? (p.cpu_freq_mhz / 1000).toFixed(1) + " GHz" : "--";
       document.getElementById("dMem").textContent = Math.round(p.mem) + "%";
       document.getElementById("dMemUse").textContent =
         (p.mem_used != null ? UI.gb(p.mem_used) + " / " : "") + UI.gb(p.mem_total || 0);
@@ -104,6 +105,18 @@ const Dashboard = (() => {
     } catch (e) { /* ignore */ }
   }
 
+  /* 天气显示（hero 右侧） */
+  async function loadWeather() {
+    try {
+      const w = await API.getWeather();
+      const el = document.getElementById("heroWeather");
+      if (el && w) {
+        const parts = [w.city, w.temp != null ? w.temp + "°" : "--", w.desc];
+        el.textContent = parts.filter(Boolean).join(" · ");
+      }
+    } catch (e) { /* ignore */ }
+  }
+
   function init() {
     document.getElementById("heroGreet").textContent = greet();
     document.getElementById("heroQuote").textContent =
@@ -112,6 +125,7 @@ const Dashboard = (() => {
     refreshPerf();
     refreshPing();
     loadStatic();
+    loadWeather();
 
     clearInterval(perfTimer);
     perfTimer = setInterval(() => {

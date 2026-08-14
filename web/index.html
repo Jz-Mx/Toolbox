@@ -66,25 +66,28 @@
   <!-- ── 首页 ── -->
   <section class="page active" id="page-dashboard">
     <div class="hero glass">
-      <div class="hero-greet" id="heroGreet">你好呀</div>
-      <div class="hero-name">这里是 <b>Talent</b> 工具箱</div>
-      <div class="hero-quote" id="heroQuote">「今天的风儿甚是喧嚣呢」</div>
-      <div class="hero-time">
-        <span class="hero-clock" id="heroClock">00:00:00</span>
-        <span class="hero-date" id="heroDate">----年--月--日 星期-</span>
+      <div class="hero-left">
+        <div class="hero-greet" id="heroGreet">你好呀</div>
+        <div class="hero-name">这里是 <b>Talent</b> 工具箱</div>
+        <div class="hero-quote" id="heroQuote">「今天的风儿甚是喧嚣呢」</div>
+        <div class="hero-time">
+          <span class="hero-clock" id="heroClock">00:00:00</span>
+          <span class="hero-date" id="heroDate">----年--月--日 星期-</span>
+        </div>
+        <div class="hero-params">
+          <span class="hp-item">CPU <b id="hpCpu">--</b></span>
+          <span class="hp-item">内存 <b id="hpMem">--</b></span>
+          <span class="hp-item">磁盘 <b id="hpDisk">--</b></span>
+          <span class="hp-item">网络 <b id="hpNet">--</b></span>
+          <span class="hp-item">延迟 <b id="hpPing">--</b></span>
+        </div>
       </div>
-      <div class="hero-params">
-        <span class="hp-item">CPU <b id="hpCpu">--</b></span>
-        <span class="hp-item">内存 <b id="hpMem">--</b></span>
-        <span class="hp-item">磁盘 <b id="hpDisk">--</b></span>
-        <span class="hp-item">网络 <b id="hpNet">--</b></span>
-        <span class="hp-item">延迟 <b id="hpPing">--</b></span>
-      </div>
+      <div class="hero-weather" id="heroWeather">--</div>
     </div>
 
     <div class="detail-panel">
       <div class="detail-grid">
-        <div class="d-item"><span>CPU</span><b id="dCpu">--</b></div>
+        <div class="d-item"><span>频率</span><b id="dCpu">--</b></div>
         <div class="d-item"><span>核心</span><b id="dCores">--</b></div>
         <div class="d-item"><span>内存</span><b id="dMem">--</b></div>
         <div class="d-item"><span>内存用量</span><b id="dMemUse">--</b></div>

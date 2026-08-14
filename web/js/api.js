@@ -121,6 +121,7 @@ const API = (() => {
     killProcess: (pid) => call("kill_process", pid),
     getStartupItems: () => call("get_startup_items"),
     ping: () => call("ping"),
+    getWeather: () => call("get_weather"),
     log: (level, msg) => call("log", level, msg),
     moveTo: (x, y) => call("move_to", x, y),
     minimize: () => call("minimize"),

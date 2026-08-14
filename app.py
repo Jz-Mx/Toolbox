@@ -5,6 +5,7 @@
 # ═══════════════════════════════════════════════════════════════
 
 import ctypes
+import json
 import logging
 import os
 import platform
@@ -13,6 +14,7 @@ import socket
 import subprocess
 import sys
 import tempfile
+import urllib.request
 import threading
 import time
 import winreg
@@ -298,6 +300,80 @@ def ping_latency():
 
 
 # ────────────────────────────────────────────────────────────────
+#  天气查询（IP 定位 + Open-Meteo，缓存 10 分钟）
+# ────────────────────────────────────────────────────────────────
+_WMO_DESC = {
+    0: "晴", 1: "晴间多云", 2: "多云", 3: "阴",
+    45: "雾", 48: "雾凇",
+    51: "毛毛雨", 53: "毛毛雨", 55: "毛毛雨",
+    61: "小雨", 63: "中雨", 65: "大雨",
+    71: "小雪", 73: "中雪", 75: "大雪", 77: "雪粒",
+    80: "阵雨", 81: "阵雨", 82: "强阵雨",
+    85: "阵雪", 86: "强阵雪",
+    95: "雷阵雨", 96: "雷雨冰雹", 99: "强雷暴",
+}
+
+_weather_cache = None
+_weather_ts = 0.0
+
+
+def _ip_location():
+    """IP 定位（多源容错），返回 (lat, lon, city)。"""
+    sources = [
+        ("http://ip-api.com/json", "ip-api"),
+        ("https://ipwho.is/", "ipwho"),
+    ]
+    for url, kind in sources:
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Talent/1.1"})
+            with urllib.request.urlopen(req, timeout=6) as r:
+                d = json.loads(r.read().decode("utf-8"))
+            if kind == "ip-api":
+                if d.get("status") != "success":
+                    continue
+                return d.get("lat"), d.get("lon"), d.get("city") or d.get("regionName") or "本地"
+            else:
+                lat, lon = d.get("latitude"), d.get("longitude")
+                if lat is None or lon is None:
+                    continue
+                return lat, lon, d.get("city") or "本地"
+        except Exception:
+            continue
+    return None, None, "本地"
+
+
+def get_weather():
+    """返回 {city, temp, desc}；失败时返回降级结果。"""
+    global _weather_cache, _weather_ts
+    now = time.time()
+    if _weather_cache is not None and now - _weather_ts < 600:
+        return _weather_cache
+    try:
+        # 1) IP 定位（多源容错）
+        lat, lon, city = _ip_location()
+        if lat is None or lon is None:
+            raise ValueError("no location")
+        # 2) Open-Meteo 当前天气
+        url = (
+            "https://api.open-meteo.com/v1/forecast"
+            f"?latitude={lat}&longitude={lon}"
+            "&current=temperature_2m,weather_code&timezone=auto"
+        )
+        req2 = urllib.request.Request(url, headers={"User-Agent": "Talent/1.1"})
+        with urllib.request.urlopen(req2, timeout=6) as r:
+            w = json.loads(r.read().decode("utf-8"))
+        cur = w.get("current", {})
+        temp = round(cur.get("temperature_2m", 0))
+        desc = _WMO_DESC.get(cur.get("weather_code"), "未知")
+        _weather_cache = {"city": city, "temp": temp, "desc": desc}
+        _weather_ts = now
+        return _weather_cache
+    except Exception as e:
+        log.warning("weather: %s", e)
+        return {"city": "本地", "temp": None, "desc": "天气不可用"}
+
+
+# ────────────────────────────────────────────────────────────────
 #  前端桥接 API
 #  注意：js_api 实例的属性会被 pywebview 6.x 递归遍历暴露，
 #  因此窗口引用必须用下划线前缀（_win），避免遍历 .NET 对象链。
@@ -335,6 +411,13 @@ class TalentAPI:
                 vm = psutil.virtual_memory()
                 cpu = psutil.cpu_percent(interval=None)
                 disk = psutil.disk_usage(os.path.splitdrive(os.getcwd())[0] + "\\")
+                freq_mhz = 0
+                try:
+                    f = psutil.cpu_freq()
+                    if f:
+                        freq_mhz = round(f.current or 0)
+                except Exception:
+                    pass
 
                 now = time.time()
                 net = psutil.net_io_counters()
@@ -349,6 +432,7 @@ class TalentAPI:
 
                 return {
                     "cpu": round(cpu, 1),
+                    "cpu_freq_mhz": freq_mhz,
                     "mem": round(vm.percent, 1),
                     "mem_total": vm.total,
                     "mem_used": vm.used,
@@ -362,7 +446,8 @@ class TalentAPI:
         except Exception as e:
             log.error("get_perf: %s", e)
             return {
-                "cpu": 0.0, "mem": 0.0, "disk_pct": 0.0,
+                "cpu": 0.0, "cpu_freq_mhz": 0,
+                "mem": 0.0, "disk_pct": 0.0,
                 "mem_total": 0, "mem_used": 0,
                 "disk_used": 0, "disk_total": 0,
                 "net_down": 0.0, "net_up": 0.0, "uptime": 0.0,
@@ -444,6 +529,10 @@ class TalentAPI:
     # ── 网络延迟 ──
     def ping(self):
         return ping_latency()
+
+    # ── 天气 ──
+    def get_weather(self):
+        return get_weather()
 
     # ── 前端日志上报 ──
     def log(self, level, msg):

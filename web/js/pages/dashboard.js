@@ -48,9 +48,6 @@ const Dashboard = (() => {
 
   function tickClock() {
     const now = new Date();
-    const p = (n) => String(n).padStart(2, "0");
-    document.getElementById("heroClock").textContent =
-      `${p(now.getHours())}:${p(now.getMinutes())}:${p(now.getSeconds())}`;
     const week = "日一二三四五六"[now.getDay()];
     document.getElementById("heroDate").textContent =
       `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 星期${week}`;

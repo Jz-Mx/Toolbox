@@ -84,11 +84,18 @@
       <div class="hero-weather" id="heroWeather">--</div>
     </div>
 
-    <div class="dash-grid">
-      <div class="quick glass" data-jump="monitor">实时监控</div>
-      <div class="quick glass" data-jump="tools">内存清理</div>
-      <div class="quick glass" data-jump="apps">番茄钟</div>
-      <div class="quick glass" data-jump="about">关于我</div>
+    <div class="quick-row">
+      <div class="quick-left">
+        <button class="quick glass" data-jump="monitor">实时监控</button>
+        <button class="quick glass" data-jump="tools">内存清理</button>
+        <button class="quick glass" data-jump="apps">小玩意</button>
+        <button class="quick glass" data-jump="about">关于我</button>
+      </div>
+      <div class="daily glass">
+        <div class="daily-title">每日提问</div>
+        <div class="daily-q" id="dailyQ"></div>
+        <button class="daily-check" id="dailyCheck" title="完成打卡">✓</button>
+      </div>
     </div>
 
     <div class="detail-panel">

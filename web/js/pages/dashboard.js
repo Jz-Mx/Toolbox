@@ -34,6 +34,7 @@ const Dashboard = (() => {
   let coresText = "";
   let memSpecText = "";
   let osText = "";
+  let uptimeText = "";
   let lastDown = 0, lastUp = 0, lastPing = null;
 
   function greet() {
@@ -83,16 +84,18 @@ const Dashboard = (() => {
       lastDown = p.net_down;
       lastUp = p.net_up;
       updateNet();
+      uptimeText = UI.dur(p.uptime);
+      updateUptimeOs();
     } catch (e) {
       /* 忽略单次失败 */
     }
   }
 
-  /* 系统信息行 */
+  /* 系统信息行：系统版本 · 启动时间 */
   function updateUptimeOs() {
     const el = document.getElementById("dUptimeOs");
     if (!el) return;
-    el.textContent = osText || "--";
+    el.textContent = [osText, uptimeText ? "启动 " + uptimeText : ""].filter(Boolean).join(" · ");
   }
 
   /* 网络行：↓下行 ↑上行 延迟 */
@@ -176,6 +179,55 @@ const Dashboard = (() => {
     }
   }
 
+  /* 每日提问：高中数学题池（按日期固定一道），√ 打卡（localStorage 记录） */
+  const DAILY_QUESTIONS = [
+    "求函数 f(x) = x² - 4x + 3 的最小值。",
+    "已知 sinα = 3/5（α 为锐角），求 cosα 的值。",
+    "等差数列 {aₙ} 中 a₁=2，d=3，求 a₁₀。",
+    "等比数列 {bₙ} 中 b₁=1，q=2，求前 6 项和。",
+    "解不等式 x² - 5x + 6 < 0。",
+    "求直线 y = 2x + 1 与 x 轴的交点坐标。",
+    "圆 x² + y² = 25 上一点 (3,4)，求该点处切线的斜率。",
+    "已知向量 a=(1,2)，b=(3,-1)，求 a·b。",
+    "函数 y = 2sin(x + π/6) 的最小正周期是多少？",
+    "求 log₂8 + log₃9 的值。",
+    "从 5 名同学中选 2 名参加比赛，有多少种选法？",
+    "掷一枚骰子两次，两次点数之和为 7 的概率是多少？",
+    "已知 f(x) = x³ - 3x，求 f'(x)。",
+    "双曲线 x²/9 - y²/16 = 1 的渐近线方程是什么？",
+    "求 ∫₀¹ 3x² dx 的值。",
+    "在 △ABC 中，a=3，b=4，∠C=90°，求 c。",
+    "已知 tanθ = 2，求 (sinθ + cosθ)/(sinθ - cosθ) 的值。",
+    "函数 f(x) = x³ - 3x + 1 的单调递减区间是？",
+    "排列数 A₅³ 等于多少？",
+    "求椭圆 x²/25 + y²/9 = 1 的焦距。",
+    "log₁₀100 + log₁₀1000 等于多少？",
+    "已知复数 z = 2 + 3i，求 |z|。",
+    "抛物线 y² = 8x 的焦点坐标是？",
+    "求函数 y = 1/(x² + 1) 的最大值。",
+  ];
+
+  function loadDaily() {
+    const el = document.getElementById("dailyQ");
+    const btn = document.getElementById("dailyCheck");
+    if (!el || !btn) return;
+    const today = new Date().toISOString().slice(0, 10);
+    let seed = 0;
+    for (const ch of today) seed = (seed * 31 + ch.charCodeAt(0)) % 100000;
+    el.textContent = DAILY_QUESTIONS[seed % DAILY_QUESTIONS.length];
+
+    const done = (() => { try { return localStorage.getItem("talent_daily_" + today) === "1"; } catch (e) { return false; } })();
+    btn.classList.toggle("done", done);
+
+    if (btn.dataset.bound) return;
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", () => {
+      try { localStorage.setItem("talent_daily_" + today, "1"); } catch (e) { /* ignore */ }
+      btn.classList.add("done");
+      UI.toast("打卡成功，今天也很棒！");
+    });
+  }
+
   function init() {
     document.getElementById("heroGreet").textContent = greet();
     document.getElementById("heroQuote").textContent =
@@ -185,6 +237,7 @@ const Dashboard = (() => {
     refreshPing();
     loadStatic();
     loadWeather();
+    loadDaily();
 
     clearInterval(perfTimer);
     perfTimer = setInterval(() => {

@@ -290,23 +290,84 @@ body { background: #14101f; }
   font-size: 13px;
 }
 
-/* ────────────── 首页速览（精简） ────────────── */
-.dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+/* ────────────── 首页快捷入口 + 每日提问 ────────────── */
+.quick-row {
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+}
+.quick-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 46%;
 }
 .quick {
-  padding: 13px;
+  flex: 1;
+  padding: 9px 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
-  border-radius: 16px;
-  font-size: 13.5px; font-weight: 600;
+  border-radius: 14px;
+  font-size: 12.5px; font-weight: 600;
   color: var(--text);
   cursor: pointer;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   transition: transform 0.4s var(--spring), background 0.3s, border-color 0.3s;
 }
-.quick:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.09); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+.quick:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.09); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
 .quick:active { transform: scale(0.92); }
+
+/* 每日提问框（高度 = 4 个快捷按钮之和） */
+.daily {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 22px;
+  position: relative;
+  text-align: center;
+}
+.daily-title {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 3px;
+}
+.daily-q {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text);
+  max-width: 92%;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.daily-check {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: transparent;
+  color: transparent;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s var(--spring), background 0.2s, border-color 0.2s, color 0.2s;
+}
+.daily-check:hover { transform: scale(1.15); border-color: rgba(255, 255, 255, 0.5); }
+.daily-check:active { transform: scale(0.85); }
+.daily-check.done {
+  background: var(--grad-main);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 40%, transparent);
+}
 
 /* ────────────── 系统详情（首页内，纯透明，靠左下） ────────────── */
 .detail-panel {

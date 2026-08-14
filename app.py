@@ -338,50 +338,80 @@ def _ip_location():
     """IP 定位（多源容错），返回 (lat, lon, city)。"""
     sources = [
         ("http://ip-api.com/json", "ip-api"),
+        ("https://ip-api.com/json", "ip-api"),
         ("https://ipwho.is/", "ipwho"),
+        ("https://ipinfo.io/json", "ipinfo"),
     ]
     for url, kind in sources:
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "Talent/1.1"})
-            with urllib.request.urlopen(req, timeout=6) as r:
+            with urllib.request.urlopen(req, timeout=5) as r:
                 d = json.loads(r.read().decode("utf-8"))
             if kind == "ip-api":
                 if d.get("status") != "success":
                     continue
                 return d.get("lat"), d.get("lon"), d.get("city") or d.get("regionName") or "本地"
-            else:
+            elif kind == "ipwho":
                 lat, lon = d.get("latitude"), d.get("longitude")
                 if lat is None or lon is None:
                     continue
                 return lat, lon, d.get("city") or "本地"
+            else:  # ipinfo
+                loc = d.get("loc", "")
+                if "," not in loc:
+                    continue
+                lat, lon = loc.split(",")
+                return float(lat), float(lon), d.get("city") or "本地"
         except Exception:
             continue
     return None, None, "本地"
 
 
 def get_weather():
-    """返回 {city, temp, desc}；失败时返回降级结果。"""
+    """返回 {city, temp, desc}；位置/天气源多级容错，失败时返回降级结果。"""
     global _weather_cache, _weather_ts
     now = time.time()
-    if _weather_cache is not None and now - _weather_ts < 600:
+    if _weather_cache is not None and now - _weather_ts < 300:
         return _weather_cache
     try:
         # 1) IP 定位（多源容错）
         lat, lon, city = _ip_location()
         if lat is None or lon is None:
             raise ValueError("no location")
-        # 2) Open-Meteo 当前天气
-        url = (
-            "https://api.open-meteo.com/v1/forecast"
-            f"?latitude={lat}&longitude={lon}"
-            "&current=temperature_2m,weather_code&timezone=auto"
-        )
-        req2 = urllib.request.Request(url, headers={"User-Agent": "Talent/1.1"})
-        with urllib.request.urlopen(req2, timeout=6) as r:
-            w = json.loads(r.read().decode("utf-8"))
-        cur = w.get("current", {})
-        temp = round(cur.get("temperature_2m", 0))
-        desc = _WMO_DESC.get(cur.get("weather_code"), "未知")
+
+        # 2) 天气源 A：Open-Meteo
+        temp = desc = None
+        try:
+            url = (
+                "https://api.open-meteo.com/v1/forecast"
+                f"?latitude={lat}&longitude={lon}"
+                "&current=temperature_2m,weather_code&timezone=auto"
+            )
+            req = urllib.request.Request(url, headers={"User-Agent": "Talent/1.1"})
+            with urllib.request.urlopen(req, timeout=6) as r:
+                w = json.loads(r.read().decode("utf-8"))
+            cur = w.get("current", {})
+            temp = round(cur.get("temperature_2m", 0))
+            desc = _WMO_DESC.get(cur.get("weather_code"), "未知")
+        except Exception:
+            pass
+
+        # 3) 天气源 B：wttr.in（Open-Meteo 失败时）
+        if temp is None:
+            try:
+                url = f"https://wttr.in/{lat},{lon}?format=j1&lang=zh"
+                req = urllib.request.Request(url, headers={"User-Agent": "Talent/1.1"})
+                with urllib.request.urlopen(req, timeout=6) as r:
+                    w = json.loads(r.read().decode("utf-8"))
+                cur = w.get("current_condition", [{}])[0]
+                temp = round(float(cur.get("temp_C", 0)))
+                lang = cur.get("lang_zh")
+                desc = lang[0]["value"] if lang else cur.get("weatherDesc", [{}])[0].get("value", "未知")
+            except Exception:
+                pass
+
+        if temp is None:
+            raise ValueError("no weather")
         _weather_cache = {"city": city, "temp": temp, "desc": desc}
         _weather_ts = now
         return _weather_cache

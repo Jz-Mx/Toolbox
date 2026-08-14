@@ -110,7 +110,9 @@ const Dashboard = (() => {
     } catch (e) { /* ignore */ }
   }
 
-  /* 天气显示（hero 右侧） */
+  /* 天气显示（hero 右侧），失败 60 秒后自动重试 */
+  let weatherTimer = null;
+
   async function loadWeather() {
     try {
       const w = await API.getWeather();
@@ -119,7 +121,15 @@ const Dashboard = (() => {
         const parts = [w.city, w.temp != null ? w.temp + "°" : "--", w.desc];
         el.textContent = parts.filter(Boolean).join(" · ");
       }
-    } catch (e) { /* ignore */ }
+      if (!w || w.temp == null) {
+        // 降级结果：稍后重试
+        clearTimeout(weatherTimer);
+        weatherTimer = setTimeout(loadWeather, 60000);
+      }
+    } catch (e) {
+      clearTimeout(weatherTimer);
+      weatherTimer = setTimeout(loadWeather, 60000);
+    }
   }
 
   function init() {
@@ -146,6 +156,8 @@ const Dashboard = (() => {
     perfTimer = null;
     clearInterval(pingTimer);
     pingTimer = null;
+    clearTimeout(weatherTimer);
+    weatherTimer = null;
   }
 
   return { init, destroy };

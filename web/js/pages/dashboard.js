@@ -70,9 +70,8 @@ const Dashboard = (() => {
       // 系统详情卡
       document.getElementById("dCpu").textContent =
         p.cpu_freq_mhz ? (p.cpu_freq_mhz / 1000).toFixed(1) + " GHz" : "--";
-      document.getElementById("dMem").textContent = Math.round(p.mem) + "%";
-      document.getElementById("dMemUse").textContent =
-        (p.mem_used != null ? UI.gb(p.mem_used) + " / " : "") + UI.gb(p.mem_total || 0);
+      document.getElementById("dMem").textContent =
+        UI.gb(p.mem_used || 0) + " / " + UI.gb(p.mem_total || 0);
       document.getElementById("dDisk").textContent = Math.round(p.disk_pct) + "%";
       document.getElementById("dDiskUse").textContent = UI.gb(p.disk_used) + " / " + UI.gb(p.disk_total);
       document.getElementById("dDown").textContent = API.fmtSpeed(p.net_down);
@@ -102,6 +101,7 @@ const Dashboard = (() => {
         (s.cpu_cores || "?") + " 核 / " + (s.cpu_threads || "?") + " 线程";
       document.getElementById("dOs").textContent = String(s.os || "--").replace(/^Windows-(\d+)-[\d.]+-SP\d+.*$/, "Windows $1");
       document.getElementById("dGpu").textContent = s.gpu || "--";
+      document.getElementById("dMemSpec").textContent = s.mem_spec || "--";
     } catch (e) { /* ignore */ }
   }
 

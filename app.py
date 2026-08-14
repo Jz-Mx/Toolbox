@@ -153,11 +153,28 @@ def _sysinfo():
         info["gpu"] = "未知"
         info["motherboard"] = "未知"
         info["bios"] = "未知"
+        info["mem_spec"] = ""
 
         # 通过 WMI 查询显卡 / 主板 / BIOS（异步线程内执行，避免卡 UI）
         gpus = _ps_query("Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name")
         if gpus:
             info["gpu"] = " / ".join(gpus[:2])
+
+        # 内存规格（SMBIOS 类型 + 配置频率，如 DDR4-3800）
+        try:
+            mt = _ps_query(
+                "Get-CimInstance Win32_PhysicalMemory | Select-Object -First 1 -ExpandProperty SMBIOSMemoryType"
+            )
+            spd = _ps_query(
+                "Get-CimInstance Win32_PhysicalMemory | Select-Object -First 1 -ExpandProperty ConfiguredClockSpeed"
+            )
+            mem_type = {20: "DDR", 21: "DDR2", 24: "DDR3", 26: "DDR4", 34: "DDR5"}.get(
+                int(mt[0]) if mt and mt[0].isdigit() else 0, ""
+            )
+            freq = int(spd[0]) if spd and spd[0].isdigit() else 0
+            info["mem_spec"] = (mem_type + "-" if mem_type else "") + (str(freq) + "MHz" if freq else "DDR") or "DDR"
+        except Exception:
+            pass
 
         mb = _ps_query(
             "Get-CimInstance Win32_BaseBoard | ForEach-Object { \"$($_.Manufacturer) $($_.Product)\" }"

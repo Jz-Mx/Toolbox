@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════
-   首页 · 仪表盘
+   首页 · 仪表盘（简洁版：hero + 实时参数行）
    ═══════════════════════════════════════════ */
 
 const Dashboard = (() => {
@@ -56,22 +56,9 @@ const Dashboard = (() => {
       const p = await API.getPerf();
       if (!p) return;
 
-      UI.setRing("ringCpuFg", p.cpu, UI.pctColor(p.cpu));
-      document.getElementById("cpuNum").textContent = Math.round(p.cpu);
-      UI.setRing("ringMemFg", p.mem, UI.pctColor(p.mem));
-      document.getElementById("memNum").textContent = Math.round(p.mem);
-
-      document.getElementById("diskPct").textContent = Math.round(p.disk_pct) + "%";
-      document.getElementById("diskBar").style.width = p.disk_pct + "%";
-      document.getElementById("diskUsed").textContent = API.fmtGB(p.disk_used);
-      document.getElementById("diskTotal").textContent = "共 " + API.fmtGB(p.disk_total);
-
-      document.getElementById("netDown").textContent = API.fmtSpeed(p.net_down);
-      document.getElementById("netUp").textContent = API.fmtSpeed(p.net_up);
       const total = p.net_down + p.net_up;
       if (lastNet === null || Math.abs(total - lastNet) > 512) {
         lastNet = total;
-        document.getElementById("netSpeed").textContent = API.fmtSpeed(total);
       }
 
       // hero 参数行
@@ -87,8 +74,8 @@ const Dashboard = (() => {
   async function refreshPing() {
     try {
       const r = await API.ping();
-      const el = document.getElementById("netPing");
-      if (el && r && r.ms != null) el.textContent = `延迟 ${r.ms} ms`;
+      const el = document.getElementById("hpPing");
+      if (el && r && r.ms != null) el.textContent = r.ms + " ms";
     } catch (e) { /* ignore */ }
   }
 

@@ -58,10 +58,6 @@
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.5v.5"/></svg>
     <span class="nav-txt">关于</span>
   </button>
-  <button class="nav-item" data-page="settings">
-    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2.2"/><circle cx="9" cy="12" r="2.2"/><circle cx="17" cy="18" r="2.2"/></svg>
-    <span class="nav-txt">设置</span>
-  </button>
 </nav>
 
 <!-- ══════════ 主内容区 ══════════ -->
@@ -82,49 +78,15 @@
         <span class="hp-item">内存 <b id="hpMem">--</b></span>
         <span class="hp-item">磁盘 <b id="hpDisk">--</b></span>
         <span class="hp-item">网络 <b id="hpNet">--</b></span>
+        <span class="hp-item">延迟 <b id="hpPing">--</b></span>
       </div>
     </div>
 
     <div class="dash-grid">
-      <div class="stat-card glass" data-tip="CPU 使用率">
-        <svg class="stat-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>
-        <div class="ring" id="ringCpu">
-          <svg viewBox="0 0 96 96"><circle class="ring-bg" cx="48" cy="48" r="40"/><circle class="ring-fg" id="ringCpuFg" cx="48" cy="48" r="40"/></svg>
-          <div class="ring-num"><b id="cpuNum">0</b><i>%</i></div>
-        </div>
-        <div class="stat-label">CPU</div>
-      </div>
-      <div class="stat-card glass" data-tip="内存使用率">
-        <svg class="stat-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg>
-        <div class="ring" id="ringMem">
-          <svg viewBox="0 0 96 96"><circle class="ring-bg" cx="48" cy="48" r="40"/><circle class="ring-fg" id="ringMemFg" cx="48" cy="48" r="40"/></svg>
-          <div class="ring-num"><b id="memNum">0</b><i>%</i></div>
-        </div>
-        <div class="stat-label">内存</div>
-      </div>
-      <div class="stat-card glass">
-        <svg class="stat-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><ellipse cx="12" cy="12" rx="9" ry="5.5"/><circle cx="12" cy="12" r="2"/></svg>
-        <div class="bar-wrap">
-          <div class="bar-head"><span>磁盘</span><b id="diskPct">0%</b></div>
-          <div class="bar"><div class="bar-fill" id="diskBar"></div></div>
-          <div class="bar-sub"><span id="diskUsed">0</span><span id="diskTotal">0</span></div>
-        </div>
-      </div>
-      <div class="stat-card glass">
-        <svg class="stat-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 12a9.5 9.5 0 0 1 19 0"/><path d="M5.5 12a6.5 6.5 0 0 1 13 0"/><circle cx="12" cy="12" r="2"/></svg>
-        <div class="bar-wrap">
-          <div class="bar-head"><span>网络</span><b id="netSpeed">0 B/s</b></div>
-          <div class="bar-sub net-sub"><span>↓ <b id="netDown">0 B/s</b></span><span>↑ <b id="netUp">0 B/s</b></span></div>
-          <div class="net-ping" id="netPing">延迟 -- ms</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="quick-row">
-      <button class="quick glass" data-jump="monitor">实时监控</button>
-      <button class="quick glass" data-jump="tools">内存清理</button>
-      <button class="quick glass" data-jump="apps">番茄钟</button>
-      <button class="quick glass" data-jump="about">关于我</button>
+      <div class="quick glass" data-jump="monitor">实时监控</div>
+      <div class="quick glass" data-jump="tools">内存清理</div>
+      <div class="quick glass" data-jump="apps">番茄钟</div>
+      <div class="quick glass" data-jump="about">关于我</div>
     </div>
   </section>
 
@@ -294,35 +256,16 @@
           <a class="btn ghost sm" href="mailto:talent6839@gmail.com">发邮件</a>
         </div>
       </div>
+      <div class="appearance">
+        <div class="appearance-title">外观</div>
+        <div class="appearance-row">
+          <span class="appearance-label">强调色</span>
+          <div class="palette sm" id="accentPalette"></div>
+          <input type="color" id="accentPick" value="#8b5cf6" title="自定义">
+          <button class="btn ghost sm" id="btnAccentReset">恢复默认</button>
+        </div>
+      </div>
       <div class="about-foot">Made with love by Talent · 2025</div>
-    </div>
-  </section>
-
-  <!-- ── 设置 ── -->
-  <section class="page" id="page-settings">
-    <div class="page-head">
-      <h2>个性化设置</h2>
-      <p>自定义主题配色，默认色已与背景图自动搭配</p>
-    </div>
-    <div class="settings-grid">
-      <div class="setting-card glass">
-        <div class="setting-title">主题强调色</div>
-        <div class="setting-desc">主按钮、进度条、环形图高亮</div>
-        <div class="palette" id="accentPalette"></div>
-        <div class="setting-row">
-          <input type="color" id="accentPick" value="#8b5cf6">
-          <button class="btn ghost sm" id="btnAccentReset">恢复背景搭配色</button>
-        </div>
-      </div>
-      <div class="setting-card glass">
-        <div class="setting-title">导航选中色</div>
-        <div class="setting-desc">侧边栏当前页高亮</div>
-        <div class="palette" id="navPalette"></div>
-        <div class="setting-row">
-          <input type="color" id="navPick" value="#8b5cf6">
-          <button class="btn ghost sm" id="btnNavReset">跟随强调色</button>
-        </div>
-      </div>
     </div>
   </section>
 

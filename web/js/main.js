@@ -10,7 +10,6 @@
     tools: Tools,
     apps: Apps,
     about: About,
-    settings: Settings,
   };
 
   let current = "dashboard";

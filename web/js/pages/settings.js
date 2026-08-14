@@ -1,15 +1,24 @@
 /* ═══════════════════════════════════════════
-   设置页 · 个性化配色
-   主题强调色 / 导航选中色：默认从背景图自动提取搭配色，可自定义并持久化
+   外观设置 · 主题强调色（关于页小面板）
+   默认从背景图自动提取搭配色，可自定义并持久化，导航选中色跟随强调色
    ═══════════════════════════════════════════ */
 
 const Settings = (() => {
   const KEY = "talent_theme";
   const PRESETS = ["#8b5cf6", "#ec4899", "#22d3ee", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#6366f1"];
 
-  let accent = null;   // 主题强调色
-  let navAccent = null; // 导航选中色
-  let followNav = true; // 导航是否跟随强调色
+  let accent = "#8b5cf6";
+
+  /* 归一化为 hex（rgb() → #rrggbb） */
+  function normalize(color) {
+    if (!color) return "#8b5cf6";
+    if (color.startsWith("#")) return color;
+    const m = color.match(/(\d+),\s*(\d+),\s*(\d+)/);
+    if (m) {
+      return "#" + m.slice(1, 4).map((v) => (+v).toString(16).padStart(2, "0")).join("");
+    }
+    return "#8b5cf6";
+  }
 
   /* 从背景图提取主色（取最鲜艳的代表色） */
   function extractFromBg() {
@@ -27,10 +36,10 @@ const Settings = (() => {
             const r = d[i], g = d[i + 1], b = d[i + 2], a = d[i + 3];
             if (a < 128) continue;
             const max = Math.max(r, g, b), min = Math.min(r, g, b);
-            const sat = max - min;                 // 饱和度
-            const bright = (max + min) / 2;        // 亮度
-            if (bright < 40 || bright > 235) continue; // 排除过暗过亮
-            const score = sat + bright * 0.08;     // 鲜艳优先
+            const sat = max - min;
+            const bright = (max + min) / 2;
+            if (bright < 40 || bright > 235) continue;
+            const score = sat + bright * 0.08;
             if (score > bestScore) { bestScore = score; best = [r, g, b]; }
           }
           resolve(best ? `rgb(${best[0]},${best[1]},${best[2]})` : "#8b5cf6");
@@ -43,32 +52,19 @@ const Settings = (() => {
     });
   }
 
-  /* 归一化为 hex（rgb() → #rrggbb） */
-  function normalize(color) {
-    if (!color) return "#8b5cf6";
-    if (color.startsWith("#")) return color;
-    const m = color.match(/(\d+),\s*(\d+),\s*(\d+)/);
-    if (m) {
-      return "#" + m.slice(1, 4).map((v) => (+v).toString(16).padStart(2, "0")).join("");
-    }
-    return "#8b5cf6";
-  }
-
   /* 应用主题到 CSS 变量 */
-  function apply(ac, nav, follow) {
+  function apply(ac) {
     accent = normalize(ac);
-    navAccent = normalize(nav);
-    followNav = follow;
     const root = document.documentElement.style;
     root.setProperty("--accent", accent);
     root.setProperty("--accent2", `color-mix(in srgb, ${accent}, #ffffff 30%)`);
-    root.setProperty("--nav-accent", follow ? accent : navAccent);
+    root.setProperty("--nav-accent", accent);
     try {
-      localStorage.setItem(KEY, JSON.stringify({ accent, navAccent, followNav: follow }));
+      localStorage.setItem(KEY, JSON.stringify({ accent }));
     } catch (e) { /* ignore */ }
   }
 
-  /* 初始化：读持久化配置，无则从背景图提取 */
+  /* 初始化：读持久化配置，无则从背景图提取；渲染关于页外观面板 */
   async function init() {
     let saved = null;
     try {
@@ -76,63 +72,37 @@ const Settings = (() => {
     } catch (e) { /* ignore */ }
 
     if (saved && saved.accent) {
-      apply(saved.accent, saved.navAccent || saved.accent, saved.followNav !== false);
+      apply(saved.accent);
     } else {
-      const c = await extractFromBg();
-      apply(c, c, true);
+      apply(await extractFromBg());
     }
 
-    // 渲染设置控件
-    renderPicker("accentPalette", "accentPick", accent);
-    renderPicker("navPalette", "navPick", followNav ? accent : navAccent);
+    renderPicker();
 
-    const accentPick = document.getElementById("accentPick");
-    const navPick = document.getElementById("navPick");
-    if (accentPick.dataset.bound) return;
-    accentPick.dataset.bound = "1";
+    const pick = document.getElementById("accentPick");
+    const reset = document.getElementById("btnAccentReset");
+    if (!pick || pick.dataset.bound) return;
+    pick.dataset.bound = "1";
 
-    accentPick.addEventListener("input", () => {
-      apply(accentPick.value, followNav ? accentPick.value : navAccent, followNav);
-      renderPicker("accentPalette", "accentPick", accentPick.value);
-      if (followNav) {
-        document.getElementById("navPick").value = accentPick.value;
-        renderPicker("navPalette", "navPick", accentPick.value);
-      }
+    pick.addEventListener("input", () => {
+      apply(pick.value);
+      renderPicker();
     });
 
-    navPick.addEventListener("input", () => {
-      followNav = false;
-      apply(accent, navPick.value, false);
-      renderPicker("navPalette", "navPick", navPick.value);
-    });
-
-    document.getElementById("btnAccentReset").addEventListener("click", async () => {
+    reset.addEventListener("click", async () => {
       const c = normalize(await extractFromBg());
-      apply(c, followNav ? c : navAccent, followNav);
-      document.getElementById("accentPick").value = c;
-      renderPicker("accentPalette", "accentPick", c);
-      if (followNav) {
-        document.getElementById("navPick").value = c;
-        renderPicker("navPalette", "navPick", c);
-      }
+      apply(c);
+      renderPicker();
       UI.toast("已恢复为背景搭配色");
-    });
-
-    document.getElementById("btnNavReset").addEventListener("click", () => {
-      followNav = true;
-      apply(accent, accent, true);
-      document.getElementById("navPick").value = accent;
-      renderPicker("navPalette", "navPick", accent);
-      UI.toast("导航色已跟随强调色");
     });
   }
 
-  /* 渲染色板并联动取色器 */
-  function renderPicker(paletteId, pickId, current) {
-    const palette = document.getElementById(paletteId);
-    const pick = document.getElementById(pickId);
+  /* 渲染关于页色板并联动取色器 */
+  function renderPicker() {
+    const palette = document.getElementById("accentPalette");
+    const pick = document.getElementById("accentPick");
     if (!palette || !pick) return;
-    const cur = normalize(current);
+    const cur = accent;
     palette.innerHTML = PRESETS.map((c) =>
       `<div class="swatch ${c === cur ? "sel" : ""}" data-c="${c}" style="background:${c}"></div>`).join("");
     pick.value = cur;

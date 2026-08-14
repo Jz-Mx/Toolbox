@@ -34,7 +34,6 @@ const Dashboard = (() => {
   let coresText = "";
   let memSpecText = "";
   let osText = "";
-  let uptimeText = "";
   let lastDown = 0, lastUp = 0, lastPing = null;
 
   function greet() {
@@ -84,18 +83,16 @@ const Dashboard = (() => {
       lastDown = p.net_down;
       lastUp = p.net_up;
       updateNet();
-      uptimeText = UI.dur(p.uptime);
-      updateUptimeOs();
     } catch (e) {
       /* 忽略单次失败 */
     }
   }
 
-  /* 开机 / 系统 合并行 */
+  /* 系统信息行 */
   function updateUptimeOs() {
     const el = document.getElementById("dUptimeOs");
     if (!el) return;
-    el.textContent = [uptimeText, osText].filter(Boolean).join(" · ");
+    el.textContent = osText || "--";
   }
 
   /* 网络行：↓下行 ↑上行 延迟 */
@@ -140,7 +137,7 @@ const Dashboard = (() => {
       cpuMax = s.cpu_max_mhz || 0;
       coresText = (s.cpu_cores || "?") + "核 / " + (s.cpu_threads || "?") + "线程";
       memSpecText = s.mem_spec || "";
-      osText = String(s.os || "--").replace(/^Windows-(\d+)-[\d.]+-SP\d+.*$/, "Windows $1");
+      osText = s.os || "--";
       document.getElementById("dGpu").textContent = s.gpu || "--";
       updateUptimeOs();
       // 全分区用量："C: 64 GB / 117 GB · D: 230 GB / 1024 GB"

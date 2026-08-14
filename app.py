@@ -140,6 +140,26 @@ def _ps_query(script):
         return []
 
 
+def _os_friendly():
+    """详细系统版本：如 'Windows 10 22H2 专业版'（注册表 DisplayVersion + EditionID）。"""
+    try:
+        import re
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows NT\CurrentVersion") as k:
+            dv, _ = winreg.QueryValueEx(k, "DisplayVersion")
+            ed, _ = winreg.QueryValueEx(k, "EditionID")
+            pn, _ = winreg.QueryValueEx(k, "ProductName")
+        edition_map = {
+            "Professional": "专业版", "ProfessionalN": "专业版 N",
+            "Home": "家庭版", "Core": "家庭版", "HomeChina": "家庭中文版",
+            "Enterprise": "企业版", "Education": "教育版", "ProEducation": "专业教育版",
+        }
+        m = re.match(r"(Windows\s+\d+)", str(pn))
+        base = m.group(1) if m else "Windows"
+        return f"{base} {dv} {edition_map.get(str(ed), str(ed))}"
+    except Exception:
+        return platform.platform()
+
+
 # ────────────────────────────────────────────────────────────────
 #  实时 CPU 频率（性能计数器，psutil 在 Windows 只返回标称频率）
 # ────────────────────────────────────────────────────────────────
@@ -215,7 +235,7 @@ def real_cpu_freq_mhz():
 def _sysinfo():
     info = {}
     try:
-        info["os"] = platform.platform()
+        info["os"] = _os_friendly()
         info["cpu_name"] = "未知"
         info["cpu_cores"] = psutil.cpu_count(logical=False) or "?"
         info["cpu_threads"] = psutil.cpu_count(logical=True) or "?"

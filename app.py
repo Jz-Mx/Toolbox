@@ -790,6 +790,9 @@ def main():
     log.info("start %s v%s, web=%s", APP_NAME, APP_VERSION, index)
     start_max_freq_detect()
 
+    # 指定拖拽区域：仅顶部栏 logo/名称区可拖（pywebview 官方机制，走 UI 线程）
+    webview.settings["DRAG_REGION_SELECTOR"] = ".titlebar-drag"
+
     window = webview.create_window(
         APP_NAME,
         index,

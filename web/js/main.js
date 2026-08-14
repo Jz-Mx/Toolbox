@@ -46,35 +46,9 @@
     else window.close();
   });
 
-  /* ── frameless 窗口拖拽（仅顶部栏 logo/名称区域可拖，其余位置不可拖） ── */
-  (function bindDrag() {
-    const area = document.getElementById("dragArea");
-    if (!API.hasNative || !area) return;
-
-    let rafId = null;
-    let startX = 0, startY = 0, winX = 0, winY = 0, dragging = false;
-
-    area.addEventListener("mousedown", (e) => {
-      if (e.button !== 0) return;
-      dragging = true;
-      startX = e.screenX;
-      startY = e.screenY;
-      winX = e.screenX - e.clientX;
-      winY = e.screenY - e.clientY;
-    });
-    window.addEventListener("mousemove", (e) => {
-      if (!dragging) return;
-      if (rafId) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = null;
-        API.moveTo(winX + e.screenX - startX, winY + e.screenY - startY);
-      });
-    });
-    window.addEventListener("mouseup", () => {
-      dragging = false;
-      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-    });
-  })();
+  /* ── frameless 窗口拖拽 ──
+     拖拽由 pywebview 官方机制处理（DRAG_REGION_SELECTOR=.titlebar-drag，
+     仅顶部栏 logo/名称区可拖），此处不再自实现 */
 
   /* ── 前端错误上报（桌面版写入日志文件，便于排查） ── */
   window.addEventListener("error", (e) => {

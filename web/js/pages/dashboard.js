@@ -73,6 +73,12 @@ const Dashboard = (() => {
         lastNet = total;
         document.getElementById("netSpeed").textContent = API.fmtSpeed(total);
       }
+
+      // hero 参数行
+      document.getElementById("hpCpu").textContent = Math.round(p.cpu) + "%";
+      document.getElementById("hpMem").textContent = Math.round(p.mem) + "%";
+      document.getElementById("hpDisk").textContent = Math.round(p.disk_pct) + "%";
+      document.getElementById("hpNet").textContent = API.fmtSpeed(total);
     } catch (e) {
       /* 忽略单次失败 */
     }

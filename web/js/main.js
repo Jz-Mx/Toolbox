@@ -10,6 +10,7 @@
     tools: Tools,
     apps: Apps,
     about: About,
+    settings: Settings,
   };
 
   let current = "dashboard";
@@ -90,6 +91,8 @@
     if (PAGES[current] && PAGES[current].init) PAGES[current].init();
   };
 
-  /* ── 启动 ── */
-  Dashboard.init();
+  /* ── 启动：先应用主题，再初始化首页 ── */
+  Settings.init().then(() => {
+    Dashboard.init();
+  });
 })();

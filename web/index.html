@@ -58,6 +58,10 @@
     <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.5v.5"/></svg>
     <span class="nav-txt">关于</span>
   </button>
+  <button class="nav-item" data-page="settings">
+    <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2.2"/><circle cx="9" cy="12" r="2.2"/><circle cx="17" cy="18" r="2.2"/></svg>
+    <span class="nav-txt">设置</span>
+  </button>
 </nav>
 
 <!-- ══════════ 主内容区 ══════════ -->
@@ -72,6 +76,12 @@
       <div class="hero-time">
         <span class="hero-clock" id="heroClock">00:00:00</span>
         <span class="hero-date" id="heroDate">----年--月--日 星期-</span>
+      </div>
+      <div class="hero-params">
+        <span class="hp-item">CPU <b id="hpCpu">--</b></span>
+        <span class="hp-item">内存 <b id="hpMem">--</b></span>
+        <span class="hp-item">磁盘 <b id="hpDisk">--</b></span>
+        <span class="hp-item">网络 <b id="hpNet">--</b></span>
       </div>
     </div>
 
@@ -288,6 +298,34 @@
     </div>
   </section>
 
+  <!-- ── 设置 ── -->
+  <section class="page" id="page-settings">
+    <div class="page-head">
+      <h2>个性化设置</h2>
+      <p>自定义主题配色，默认色已与背景图自动搭配</p>
+    </div>
+    <div class="settings-grid">
+      <div class="setting-card glass">
+        <div class="setting-title">主题强调色</div>
+        <div class="setting-desc">主按钮、进度条、环形图高亮</div>
+        <div class="palette" id="accentPalette"></div>
+        <div class="setting-row">
+          <input type="color" id="accentPick" value="#8b5cf6">
+          <button class="btn ghost sm" id="btnAccentReset">恢复背景搭配色</button>
+        </div>
+      </div>
+      <div class="setting-card glass">
+        <div class="setting-title">导航选中色</div>
+        <div class="setting-desc">侧边栏当前页高亮</div>
+        <div class="palette" id="navPalette"></div>
+        <div class="setting-row">
+          <input type="color" id="navPick" value="#8b5cf6">
+          <button class="btn ghost sm" id="btnNavReset">跟随强调色</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <!-- Toast -->
@@ -300,6 +338,7 @@
 <script src="js/pages/tools.js"></script>
 <script src="js/pages/apps.js"></script>
 <script src="js/pages/about.js"></script>
+<script src="js/pages/settings.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

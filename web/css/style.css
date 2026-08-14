@@ -305,16 +305,13 @@ body { background: #14101f; }
 .quick:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.09); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
 .quick:active { transform: scale(0.92); }
 
-/* ────────────── 系统详情（固定左下角，纯透明） ────────────── */
+/* ────────────── 系统详情（首页内，纯透明，靠左下） ────────────── */
 .detail-panel {
-  position: fixed;
-  left: 100px;
-  bottom: 26px;
-  z-index: 30;
-  max-width: 620px;
+  margin: 20px 0 0;
+  padding: 0;
   background: transparent;
   border: none;
-  padding: 0;
+  max-width: 640px;
 }
 .detail-grid {
   display: grid;

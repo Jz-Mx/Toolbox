@@ -91,6 +91,21 @@
       <div class="quick glass" data-jump="apps">番茄钟</div>
       <div class="quick glass" data-jump="about">关于我</div>
     </div>
+
+    <div class="detail-panel">
+      <div class="detail-grid">
+        <div class="d-item"><span>CPU</span><b id="dCpu">--</b></div>
+        <div class="d-item"><span>核心</span><b id="dCores">--</b></div>
+        <div class="d-item"><span>内存</span><b id="dMem">--</b></div>
+        <div class="d-item"><span>内存规格</span><b id="dMemSpec">--</b></div>
+        <div class="d-item"><span>磁盘</span><b id="dDisk">--</b></div>
+        <div class="d-item d-wide"><span>分区</span><b id="dDiskUse">--</b></div>
+        <div class="d-item d-wide"><span>网络</span><b id="dNet">--</b></div>
+        <div class="d-item"><span>开机</span><b id="dUptime">--</b></div>
+        <div class="d-item"><span>系统</span><b id="dOs">--</b></div>
+        <div class="d-item"><span>显卡</span><b id="dGpu">--</b></div>
+      </div>
+    </div>
   </section>
 
   <!-- ── 监控 ── -->
@@ -298,22 +313,6 @@
   </section>
 
 </main>
-
-<!-- 系统详情（固定左下角，纯透明） -->
-<div class="detail-panel">
-  <div class="detail-grid">
-    <div class="d-item"><span>CPU</span><b id="dCpu">--</b></div>
-    <div class="d-item"><span>核心</span><b id="dCores">--</b></div>
-    <div class="d-item"><span>内存</span><b id="dMem">--</b></div>
-    <div class="d-item"><span>内存规格</span><b id="dMemSpec">--</b></div>
-    <div class="d-item"><span>磁盘</span><b id="dDisk">--</b></div>
-    <div class="d-item d-wide"><span>分区</span><b id="dDiskUse">--</b></div>
-    <div class="d-item d-wide"><span>网络</span><b id="dNet">--</b></div>
-    <div class="d-item"><span>开机</span><b id="dUptime">--</b></div>
-    <div class="d-item"><span>系统</span><b id="dOs">--</b></div>
-    <div class="d-item"><span>显卡</span><b id="dGpu">--</b></div>
-  </div>
-</div>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>

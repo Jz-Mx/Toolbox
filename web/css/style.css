@@ -318,8 +318,8 @@ body { background: #14101f; }
 }
 .detail-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 7px 26px;
+  grid-template-columns: 1fr;
+  gap: 8px;
 }
 .d-item {
   display: flex;

@@ -33,6 +33,8 @@ const Dashboard = (() => {
   let cpuMax = 0;
   let coresText = "";
   let memSpecText = "";
+  let osText = "";
+  let uptimeText = "";
   let lastDown = 0, lastUp = 0, lastPing = null;
 
   function greet() {
@@ -79,14 +81,21 @@ const Dashboard = (() => {
       // 内存：规格 + 使用率（如 "DDR4 16G 3800MHz 58%"）
       document.getElementById("dMem").textContent =
         (memSpecText ? memSpecText + "  " : "") + Math.round(p.mem) + "%";
-      document.getElementById("dDisk").textContent = Math.round(p.disk_pct) + "%";
       lastDown = p.net_down;
       lastUp = p.net_up;
       updateNet();
-      document.getElementById("dUptime").textContent = UI.dur(p.uptime);
+      uptimeText = UI.dur(p.uptime);
+      updateUptimeOs();
     } catch (e) {
       /* 忽略单次失败 */
     }
+  }
+
+  /* 开机 / 系统 合并行 */
+  function updateUptimeOs() {
+    const el = document.getElementById("dUptimeOs");
+    if (!el) return;
+    el.textContent = [uptimeText, osText].filter(Boolean).join(" · ");
   }
 
   /* 网络行：↓下行 ↑上行 延迟 */
@@ -131,8 +140,9 @@ const Dashboard = (() => {
       cpuMax = s.cpu_max_mhz || 0;
       coresText = (s.cpu_cores || "?") + "核 / " + (s.cpu_threads || "?") + "线程";
       memSpecText = s.mem_spec || "";
-      document.getElementById("dOs").textContent = String(s.os || "--").replace(/^Windows-(\d+)-[\d.]+-SP\d+.*$/, "Windows $1");
+      osText = String(s.os || "--").replace(/^Windows-(\d+)-[\d.]+-SP\d+.*$/, "Windows $1");
       document.getElementById("dGpu").textContent = s.gpu || "--";
+      updateUptimeOs();
       // 全分区用量："C: 64 GB / 117 GB · D: 230 GB / 1024 GB"
       if (s.disks && s.disks.length) {
         document.getElementById("dDiskUse").textContent = s.disks

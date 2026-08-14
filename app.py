@@ -239,19 +239,29 @@ def _sysinfo():
         if cpus:
             info["cpu_model"] = cpus[0]
 
-        # 内存规格（SMBIOS 类型 + 配置频率，如 DDR4-3800）
+        # 内存规格（SMBIOS 类型 + 总容量 + 配置频率，如 "DDR4 16G 3800MHz"）
         try:
-            mt = _ps_query(
-                "Get-CimInstance Win32_PhysicalMemory | Select-Object -First 1 -ExpandProperty SMBIOSMemoryType"
-            )
-            spd = _ps_query(
-                "Get-CimInstance Win32_PhysicalMemory | Select-Object -First 1 -ExpandProperty ConfiguredClockSpeed"
-            )
+            mts = _ps_query("Get-CimInstance Win32_PhysicalMemory | Select-Object -ExpandProperty SMBIOSMemoryType")
+            caps = _ps_query("Get-CimInstance Win32_PhysicalMemory | Select-Object -ExpandProperty Capacity")
+            spds = _ps_query("Get-CimInstance Win32_PhysicalMemory | Select-Object -First 1 -ExpandProperty ConfiguredClockSpeed")
             mem_type = {20: "DDR", 21: "DDR2", 24: "DDR3", 26: "DDR4", 34: "DDR5"}.get(
-                int(mt[0]) if mt and mt[0].isdigit() else 0, ""
+                int(mts[0]) if mts and mts[0].isdigit() else 0, ""
             )
-            freq = int(spd[0]) if spd and spd[0].isdigit() else 0
-            info["mem_spec"] = (mem_type + "-" if mem_type else "") + (str(freq) + "MHz" if freq else "DDR") or "DDR"
+            total_gb = 0
+            if caps:
+                for c in caps:
+                    if c.isdigit():
+                        total_gb += int(c)
+                total_gb //= (1024 ** 3)
+            freq = int(spds[0]) if spds and spds[0].isdigit() else 0
+            parts = []
+            if mem_type:
+                parts.append(mem_type)
+            if total_gb:
+                parts.append(str(total_gb) + "G")
+            if freq:
+                parts.append(str(freq) + "MHz")
+            info["mem_spec"] = " ".join(parts) or "DDR"
         except Exception:
             pass
 

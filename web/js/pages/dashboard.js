@@ -31,6 +31,8 @@ const Dashboard = (() => {
   let lastNet = null;
   let cpuModel = "CPU";
   let cpuMax = 0;
+  let coresText = "";
+  let memSpecText = "";
   let lastDown = 0, lastUp = 0, lastPing = null;
 
   function greet() {
@@ -74,8 +76,12 @@ const Dashboard = (() => {
       const freqMhz = cpuMax || p.cpu_freq_mhz;
       document.getElementById("dCpu").textContent =
         (freqMhz ? cpuModel + " " + (freqMhz / 1000).toFixed(1) + " GHz" : cpuModel);
+      // 核心：静态 + CPU 使用率（如 "10核 / 16线程 25%"）
+      document.getElementById("dCores").textContent =
+        (coresText ? coresText + "  " : "") + Math.round(p.cpu) + "%";
+      // 内存：规格 + 使用率（如 "DDR4 16G 3800MHz 58%"）
       document.getElementById("dMem").textContent =
-        UI.gb(p.mem_used || 0) + " / " + UI.gb(p.mem_total || 0);
+        (memSpecText ? memSpecText + "  " : "") + Math.round(p.mem) + "%";
       document.getElementById("dDisk").textContent = Math.round(p.disk_pct) + "%";
       lastDown = p.net_down;
       lastUp = p.net_up;
@@ -126,11 +132,10 @@ const Dashboard = (() => {
       if (!s) return;
       cpuModel = shortCpu(s.cpu_model);
       cpuMax = s.cpu_max_mhz || 0;
-      document.getElementById("dCores").textContent =
-        (s.cpu_cores || "?") + " 核 / " + (s.cpu_threads || "?") + " 线程";
+      coresText = (s.cpu_cores || "?") + "核 / " + (s.cpu_threads || "?") + "线程";
+      memSpecText = s.mem_spec || "";
       document.getElementById("dOs").textContent = String(s.os || "--").replace(/^Windows-(\d+)-[\d.]+-SP\d+.*$/, "Windows $1");
       document.getElementById("dGpu").textContent = s.gpu || "--";
-      document.getElementById("dMemSpec").textContent = s.mem_spec || "--";
       // 全分区用量："C: 64 GB / 117 GB · D: 230 GB / 1024 GB"
       if (s.disks && s.disks.length) {
         document.getElementById("dDiskUse").textContent = s.disks

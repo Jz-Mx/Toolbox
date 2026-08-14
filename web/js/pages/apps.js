@@ -161,34 +161,58 @@ const Apps = (() => {
       });
     });
 
-    // 滚轮调时：上滚加分钟 / 下滚减分钟；按住中键滚动调秒（±5）
+    // 调时：滚轮上滚加分钟/下滚减分钟；按住中键滚动调秒（±1）；
+    // 按住左键拖拽逐秒调节（向上加/向下减，每像素 1 秒），下限 5 秒
+    const POMO_MIN = 5;
+    const POMO_MAX = 99 * 60;
     const wheel = document.getElementById("pomoWheel");
     let middleDown = false;
-    wheel.addEventListener("mousedown", (e) => {
-      if (e.button === 1) { middleDown = true; e.preventDefault(); }
-    });
-    window.addEventListener("mouseup", (e) => {
-      if (e.button === 1) middleDown = false;
-    });
-    wheel.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      const dir = e.deltaY < 0 ? 1 : -1;
-      if (middleDown) {
-        let s = (pomoLeft % 60) + dir * 5;
-        let m = Math.floor(pomoLeft / 60);
-        if (s >= 60) { m += 1; s -= 60; }
-        if (s < 0) { m -= 1; s += 60; }
-        if (m < 1) m = 1;
-        pomoLeft = m * 60 + s;
-      } else {
-        pomoLeft = Math.max(60, pomoLeft + dir * 60); // 分钟 ±1，最少 1 分钟
-      }
+    let dragState = null; // { startY, startLeft }
+
+    function pomoApply(delta) {
+      pomoLeft = Math.max(POMO_MIN, Math.min(POMO_MAX, pomoLeft + delta));
       pomoTotal = pomoLeft;
       pomoEnded = false;
       document.querySelectorAll(".pomo-modes .mode").forEach((x) => x.classList.remove("active"));
       btnStart.textContent = "开始";
       document.getElementById("pomoState").textContent = "准备开始";
       pomoRender();
+    }
+
+    function pomoDragTo(target) {
+      pomoLeft = Math.max(POMO_MIN, Math.min(POMO_MAX, target));
+      pomoTotal = pomoLeft;
+      pomoEnded = false;
+      document.querySelectorAll(".pomo-modes .mode").forEach((x) => x.classList.remove("active"));
+      btnStart.textContent = "开始";
+      document.getElementById("pomoState").textContent = "准备开始";
+      pomoRender();
+    }
+
+    wheel.addEventListener("mousedown", (e) => {
+      if (e.button === 1) { middleDown = true; e.preventDefault(); }
+      else if (e.button === 0) {
+        dragState = { startY: e.screenY, startLeft: pomoLeft };
+        e.preventDefault();
+      }
+    });
+    window.addEventListener("mousemove", (e) => {
+      if (!dragState) return;
+      // 每移动 1px = 1 秒；向上拖增加，向下拖减少
+      pomoDragTo(dragState.startLeft + (dragState.startY - e.screenY));
+    });
+    window.addEventListener("mouseup", (e) => {
+      if (e.button === 1) middleDown = false;
+      if (e.button === 0) dragState = null;
+    });
+    wheel.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const dir = e.deltaY < 0 ? 1 : -1;
+      if (middleDown) {
+        pomoApply(dir * 1); // 中键滚动：秒 ±1
+      } else {
+        pomoApply(dir * 60); // 分钟 ±1（下限 5 秒，可到 1 分钟以内）
+      }
     });
   }
 

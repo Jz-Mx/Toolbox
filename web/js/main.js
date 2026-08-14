@@ -46,22 +46,25 @@
     else window.close();
   });
 
-  /* ── frameless 窗口拖拽 ── */
+  /* ── frameless 窗口拖拽（整个标题栏都可拖，排除按钮区） ── */
   (function bindDrag() {
-    const area = document.getElementById("dragArea");
+    const bar = document.querySelector(".titlebar");
     if (!API.hasNative) return;
 
     let rafId = null;
     let startX = 0, startY = 0, winX = 0, winY = 0, dragging = false;
 
-    area.addEventListener("mousedown", (e) => {
+    const startDrag = (e) => {
       if (e.button !== 0) return;
+      // 按钮区不触发拖拽
+      if (e.target.closest(".tbtn, .titlebar-btns")) return;
       dragging = true;
       startX = e.screenX;
       startY = e.screenY;
       winX = e.screenX - e.clientX;
       winY = e.screenY - e.clientY;
-    });
+    };
+    bar.addEventListener("mousedown", startDrag);
     window.addEventListener("mousemove", (e) => {
       if (!dragging) return;
       if (rafId) return;

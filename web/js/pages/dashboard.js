@@ -167,7 +167,31 @@ const Dashboard = (() => {
     } catch (e) { /* ignore */ }
   }
 
-  /* 天气显示（hero 右侧），失败 60 秒后自动重试 */
+  /* 天气图标（苹果 SF Symbols 风格线条 SVG） */
+  const W_ICONS = {
+    sun: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/></svg>',
+    sunCloud: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3.2"/><path d="M8 2.5V4.5M8 11.5v2M2.5 8H4.5M11.5 8h2M4 4l1.4 1.4M10.6 10.6L12 12"/><path d="M17 19H8.5a3.5 3.5 0 01.3-7 5 5 0 019.6 1.2A2.8 2.8 0 0117 19z"/></svg>',
+    cloud: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H8a4 4 0 01-.4-8A5.5 5.5 0 0118.9 12 3.2 3.2 0 0117.5 19z"/></svg>',
+    fog: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 15H8a4 4 0 01-.4-8A5.5 5.5 0 0118.9 8"/><path d="M3 18h12M5 21h10"/></svg>',
+    rain: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 15H8a4 4 0 01-.4-8A5.5 5.5 0 0118.9 8 3.2 3.2 0 0117.5 15z"/><path d="M9 19l-1 2.5M13.5 19l-1 2.5M18 19l-1 2.5"/></svg>',
+    snow: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 15H8a4 4 0 01-.4-8A5.5 5.5 0 0118.9 8 3.2 3.2 0 0117.5 15z"/><path d="M11 19v3M11 20.5l-1.5-1M11 20.5l1.5-1M15.5 19v3M15.5 20.5l-1.5-1M15.5 20.5l1.5-1"/></svg>',
+    storm: '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 15H8a4 4 0 01-.4-8A5.5 5.5 0 0118.9 8 3.2 3.2 0 0117.5 15z"/><path d="M12.5 16l-2.5 4.5h3l-1.5 3.5"/></svg>',
+  };
+
+  function weatherIcon(code) {
+    if (code === 0) return W_ICONS.sun;
+    if (code === 1 || code === 2) return W_ICONS.sunCloud;
+    if (code === 3 || code == null) return W_ICONS.cloud;
+    if (code >= 45 && code <= 48) return W_ICONS.fog;
+    if (code >= 51 && code <= 67) return W_ICONS.rain;
+    if (code >= 71 && code <= 77) return W_ICONS.snow;
+    if (code >= 80 && code <= 82) return W_ICONS.rain;
+    if (code >= 85 && code <= 86) return W_ICONS.snow;
+    if (code >= 95) return W_ICONS.storm;
+    return W_ICONS.cloud;
+  }
+
+  /* 天气显示（hero 右侧，失败 60 秒后自动重试） */
   let weatherTimer = null;
 
   async function loadWeather() {
@@ -176,7 +200,7 @@ const Dashboard = (() => {
       const el = document.getElementById("heroWeather");
       if (el && w) {
         const parts = [w.city, w.temp != null ? w.temp + "°" : "--", w.desc];
-        el.textContent = parts.filter(Boolean).join(" · ");
+        el.innerHTML = weatherIcon(w.code) + '<span class="hw-text">' + parts.filter(Boolean).join(" · ") + "</span>";
       }
       if (!w || w.temp == null) {
         // 降级结果：稍后重试

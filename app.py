@@ -495,7 +495,7 @@ def get_weather():
             raise ValueError("no location")
 
         # 2) 天气源 A：Open-Meteo
-        temp = desc = None
+        temp = desc = code = None
         try:
             url = (
                 "https://api.open-meteo.com/v1/forecast"
@@ -507,7 +507,8 @@ def get_weather():
                 w = json.loads(r.read().decode("utf-8"))
             cur = w.get("current", {})
             temp = round(cur.get("temperature_2m", 0))
-            desc = _WMO_DESC.get(cur.get("weather_code"), "未知")
+            code = cur.get("weather_code")
+            desc = _WMO_DESC.get(code, "未知")
         except Exception:
             pass
 
@@ -522,12 +523,17 @@ def get_weather():
                 temp = round(float(cur.get("temp_C", 0)))
                 lang = cur.get("lang_zh")
                 desc = lang[0]["value"] if lang else cur.get("weatherDesc", [{}])[0].get("value", "未知")
+                wc = cur.get("weatherCode")
+                try:
+                    code = int(wc) if wc else None
+                except (TypeError, ValueError):
+                    code = None
             except Exception:
                 pass
 
         if temp is None:
             raise ValueError("no weather")
-        _weather_cache = {"city": city, "temp": temp, "desc": desc}
+        _weather_cache = {"city": city, "temp": temp, "desc": desc, "code": code}
         _weather_ts = now
         return _weather_cache
     except Exception as e:

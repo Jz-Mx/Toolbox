@@ -122,7 +122,7 @@ const Apps = (() => {
       pomoRunning = true;
       btnStart.textContent = "暂停";
       document.getElementById("pomoState").textContent = "专注中…";
-      UI.toast("🍅 番茄钟开始，专注起来！");
+      UI.toast("番茄钟开始，专注起来！");
       pomoTimer = setInterval(() => {
         pomoLeft--;
         pomoRender();
@@ -132,8 +132,8 @@ const Apps = (() => {
           pomoRunning = false;
           pomoEnded = true;
           btnStart.textContent = "再来一轮";
-          document.getElementById("pomoState").textContent = "🎉 完成啦！休息一下吧";
-          UI.toast("🎉 番茄钟完成！休息一下～");
+          document.getElementById("pomoState").textContent = "完成啦！休息一下吧";
+          UI.toast("番茄钟完成！休息一下～");
         }
       }, 1000);
     });
@@ -256,7 +256,7 @@ const Apps = (() => {
       input.value = "";
       save();
       todoRender(list);
-      UI.toast("已添加待办 📋");
+      UI.toast("已添加待办");
     };
     addBtn.addEventListener("click", add);
     input.addEventListener("keydown", (e) => { if (e.key === "Enter") add(); });

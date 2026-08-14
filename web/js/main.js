@@ -37,24 +37,6 @@
     b.addEventListener("click", () => switchPage(b.dataset.jump));
   });
 
-  /* ── 背景星星 ── */
-  (function buildStars() {
-    const box = document.getElementById("bgStars");
-    const frag = document.createDocumentFragment();
-    for (let i = 0; i < 42; i++) {
-      const s = document.createElement("i");
-      const size = 1.5 + Math.random() * 2.5;
-      s.style.width = size + "px";
-      s.style.height = size + "px";
-      s.style.left = Math.random() * 100 + "%";
-      s.style.top = Math.random() * 92 + "%";
-      s.style.setProperty("--tw", (2 + Math.random() * 4).toFixed(1) + "s");
-      s.style.setProperty("--td", (Math.random() * 5).toFixed(1) + "s");
-      frag.appendChild(s);
-    }
-    box.appendChild(frag);
-  })();
-
   /* ── 标题栏按钮 ── */
   document.getElementById("btnMin").addEventListener("click", () => {
     if (API.hasNative) API.minimize();

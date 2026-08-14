@@ -39,8 +39,8 @@ const Tools = (() => {
       try {
         const r = await API.cleanMemory();
         res.classList.add("show");
-        res.textContent = `✨ 清理完成！释放约 ${r.freed.toFixed(1)}% 内存（${r.before.toFixed(0)}% → ${r.after.toFixed(0)}%）`;
-        UI.toast("内存清理完成 ✨");
+        res.textContent = `清理完成！释放约 ${r.freed.toFixed(1)}% 内存（${r.before.toFixed(0)}% → ${r.after.toFixed(0)}%）`;
+        UI.toast("内存清理完成");
         updateMeter();
       } catch (e) {
         res.classList.add("show", "err");
@@ -90,8 +90,8 @@ const Tools = (() => {
       try {
         const r = await API.cleanTemp();
         res.classList.add("show");
-        res.textContent = `🧹 清理完成！释放 ${UI.gb(r.freed)} 空间`;
-        UI.toast("临时文件清理完成 🧹");
+        res.textContent = `清理完成！释放 ${UI.gb(r.freed)} 空间`;
+        UI.toast("临时文件清理完成");
         scanResult = null;
         sizeEl.textContent = "--";
         btnClean.disabled = true;

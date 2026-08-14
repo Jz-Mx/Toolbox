@@ -140,6 +140,42 @@ def _ps_query(script):
         return []
 
 
+# ────────────────────────────────────────────────────────────────
+#  实时 CPU 频率（性能计数器，psutil 在 Windows 只返回标称频率）
+# ────────────────────────────────────────────────────────────────
+_freq_cache = (0, 0.0)  # (mhz, ts)
+
+
+def real_cpu_freq_mhz():
+    """每秒最多查询一次，返回实时 MHz；失败回退 psutil 标称值。"""
+    global _freq_cache
+    now = time.time()
+    if _freq_cache[0] and now - _freq_cache[1] < 1.0:
+        return _freq_cache[0]
+    try:
+        r = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command",
+             "(Get-Counter '\\Processor Information(_Total)\\Processor Frequency' -ErrorAction SilentlyContinue).CounterSamples[0].CookedValue"],
+            capture_output=True, text=True, timeout=5,
+        )
+        v = r.stdout.strip()
+        if v:
+            mhz = int(round(float(v)))
+            _freq_cache = (mhz, now)
+            return mhz
+    except Exception:
+        pass
+    try:
+        f = psutil.cpu_freq()
+        if f and f.current:
+            mhz = int(round(f.current))
+            _freq_cache = (mhz, now)
+            return mhz
+    except Exception:
+        pass
+    return 0
+
+
 def _sysinfo():
     info = {}
     try:
@@ -154,11 +190,17 @@ def _sysinfo():
         info["motherboard"] = "未知"
         info["bios"] = "未知"
         info["mem_spec"] = ""
+        info["cpu_model"] = ""
 
         # 通过 WMI 查询显卡 / 主板 / BIOS（异步线程内执行，避免卡 UI）
         gpus = _ps_query("Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name")
         if gpus:
             info["gpu"] = " / ".join(gpus[:2])
+
+        # CPU 型号（WMI 友好名称，如 "12th Gen Intel(R) Core(TM) i5-12600KF"）
+        cpus = _ps_query("Get-CimInstance Win32_Processor | Select-Object -First 1 -ExpandProperty Name")
+        if cpus:
+            info["cpu_model"] = cpus[0]
 
         # 内存规格（SMBIOS 类型 + 配置频率，如 DDR4-3800）
         try:
@@ -458,13 +500,7 @@ class TalentAPI:
                 vm = psutil.virtual_memory()
                 cpu = psutil.cpu_percent(interval=None)
                 disk = psutil.disk_usage(os.path.splitdrive(os.getcwd())[0] + "\\")
-                freq_mhz = 0
-                try:
-                    f = psutil.cpu_freq()
-                    if f:
-                        freq_mhz = round(f.current or 0)
-                except Exception:
-                    pass
+                freq_mhz = real_cpu_freq_mhz()
 
                 now = time.time()
                 net = psutil.net_io_counters()

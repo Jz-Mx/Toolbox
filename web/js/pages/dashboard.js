@@ -29,6 +29,7 @@ const Dashboard = (() => {
   let perfTimer = null;
   let pingTimer = null;
   let lastNet = null;
+  let cpuModel = "CPU";
 
   function greet() {
     const h = new Date().getHours();
@@ -67,9 +68,9 @@ const Dashboard = (() => {
       document.getElementById("hpDisk").textContent = Math.round(p.disk_pct) + "%";
       document.getElementById("hpNet").textContent = API.fmtSpeed(total);
 
-      // 系统详情卡
+      // 系统详情卡：CPU 型号 + 实时频率（每秒刷新）
       document.getElementById("dCpu").textContent =
-        p.cpu_freq_mhz ? (p.cpu_freq_mhz / 1000).toFixed(1) + " GHz" : "--";
+        (p.cpu_freq_mhz ? cpuModel + " " + (p.cpu_freq_mhz / 1000).toFixed(1) + " GHz" : cpuModel);
       document.getElementById("dMem").textContent =
         UI.gb(p.mem_used || 0) + " / " + UI.gb(p.mem_total || 0);
       document.getElementById("dDisk").textContent = Math.round(p.disk_pct) + "%";
@@ -91,11 +92,22 @@ const Dashboard = (() => {
     } catch (e) { /* ignore */ }
   }
 
+  /* 简化 CPU 型号："12th Gen Intel(R) Core(TM) i5-12600KF" → "i5-12600KF" */
+  function shortCpu(m) {
+    if (!m) return "CPU";
+    const re = /(i[3-9]-\d{4,5}[A-Za-z]*|Ryzen\s?\d+\s?\w+\s?\d*[A-Za-z]*|i[3-9]\s?\d{4,5}[A-Za-z]*)/i;
+    const mm = String(m).match(re);
+    if (mm) return mm[1].replace(/\s+/g, " ");
+    const parts = String(m).split(" ").filter(Boolean);
+    return parts.length > 1 ? parts.slice(-2).join(" ") : m;
+  }
+
   /* 一次性加载静态系统信息 */
   async function loadStatic() {
     try {
       const s = await API.getSysinfo();
       if (!s) return;
+      cpuModel = shortCpu(s.cpu_model);
       document.getElementById("dCores").textContent =
         (s.cpu_cores || "?") + " 核 / " + (s.cpu_threads || "?") + " 线程";
       document.getElementById("dOs").textContent = String(s.os || "--").replace(/^Windows-(\d+)-[\d.]+-SP\d+.*$/, "Windows $1");

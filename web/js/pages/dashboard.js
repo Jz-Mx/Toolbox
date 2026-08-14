@@ -218,7 +218,7 @@ const Dashboard = (() => {
     }
   }
 
-  /* 每日提问：高中数学题（含答案），答对点亮星星；双击重置；0 点自动换题 */
+  /* 每日提问：高中数学题（含答案），答对点亮星星；答过的题不再出现；双击重置；0 点自动换题 */
   const DAILY_QUESTIONS = [
     { q: "求函数 f(x) = x² - 4x + 3 的最小值。", a: ["-1"] },
     { q: "已知 sinα = 3/5（α 为锐角），求 cosα 的值。", a: ["4/5", "0.8"] },
@@ -244,6 +244,42 @@ const Dashboard = (() => {
     { q: "已知复数 z = 2 + 3i，求 |z|。", a: ["√13", "sqrt13", "3.61", "3.6"] },
     { q: "抛物线 y² = 8x 的焦点坐标是？", a: ["(2,0)", "（2,0）", "2"] },
     { q: "求函数 y = 1/(x² + 1) 的最大值。", a: ["1"] },
+    { q: "已知 f(x) = x³ - 2x² + x，求 f'(x)。", a: ["3x²-4x+1", "3x^2-4x+1", "3x2-4x+1"] },
+    { q: "求 ∫₀² x dx 的值。", a: ["2"] },
+    { q: "sin²θ + cos²θ = ？（任意 θ）", a: ["1"] },
+    { q: "等差数列 1, 4, 7, ... 的第 20 项？", a: ["58"] },
+    { q: "等比数列 2, 6, 18, ... 的第 5 项？", a: ["162"] },
+    { q: "解方程 2x - 5 = 3x + 1。", a: ["-6", "x=-6"] },
+    { q: "直线 y = 3x - 2 的斜率？", a: ["3"] },
+    { q: "点 (1,2) 到原点 (0,0) 的距离？", a: ["√5", "sqrt5", "2.24", "2.2"] },
+    { q: "向量 a=(3,4) 的模长 |a|？", a: ["5"] },
+    { q: "若 sinθ = 1/2 且 θ 为锐角，则 θ = ？（用度表示）", a: ["30", "30°", "30度"] },
+    { q: "cos60° 的值？", a: ["0.5", "1/2"] },
+    { q: "tan45° 的值？", a: ["1"] },
+    { q: "log₅25 等于多少？", a: ["2"] },
+    { q: "2³ × 2⁴ = 2 的几次方？", a: ["7", "2^7", "128"] },
+    { q: "求 (x + 3)² 展开后的常数项。", a: ["9"] },
+    { q: "一元二次方程 x² - 9 = 0 的正根？", a: ["3"] },
+    { q: "函数 y = x² 的对称轴方程？", a: ["x=0", "x=0", "y轴"] },
+    { q: "正方体一个面的对角线长 2，求棱长。", a: ["√2", "sqrt2", "1.41", "1.4"] },
+    { q: "从 6 个元素中选 3 个，有多少种组合？", a: ["20"] },
+    { q: "从 4 个不同元素中选 2 个排列，有几种？", a: ["12"] },
+    { q: "掷一枚硬币 3 次，全是正面的概率？", a: ["1/8", "0.125"] },
+    { q: "盒中有 3 红 2 白，任取 1 个是红球的概率？", a: ["3/5", "0.6"] },
+    { q: "等差数列前 n 项和公式 Sₙ = n(a₁ + aₙ)/2，a₁=1，a₅=9，求 S₅。", a: ["25"] },
+    { q: "复数 i² = ？", a: ["-1"] },
+    { q: "已知 |z| = 5 且 z = 3 + bi（b>0），求 b。", a: ["4"] },
+    { q: "函数 f(x) = |x - 2| 在 x=2 处的值？", a: ["0"] },
+    { q: "求 1 + 2 + 3 + ... + 100 的和。", a: ["5050"] },
+    { q: "若 a:b = 2:3 且 a = 8，求 b。", a: ["12"] },
+    { q: "圆半径 5，求面积（用 π 表示）。", a: ["25π", "25pi", "78.5"] },
+    { q: "直角三角形两直角边 6、8，斜边？", a: ["10"] },
+    { q: "等边三角形边长 4，求高。", a: ["2√3", "2sqrt3", "3.46", "3.5"] },
+    { q: "函数 y = 2x + 1 与 y = x + 3 的交点 x 坐标？", a: ["2"] },
+    { q: "lg1000 = ？", a: ["3"] },
+    { q: "求 sin30° + cos60° 的值。", a: ["1"] },
+    { q: "若 f(x) = 2x + 1，则 f(f(1)) = ？", a: ["7"] },
+    { q: "数列 1, 1, 2, 3, 5, 8, ... 的第 8 项（斐波那契）？", a: ["21"] },
   ];
 
   function normAns(s) {
@@ -267,6 +303,7 @@ const Dashboard = (() => {
   }
 
   const DAILY_KEY = "talent_daily";
+  const DONE_KEY = "talent_daily_done";
 
   function dailyState() {
     try { return JSON.parse(localStorage.getItem(DAILY_KEY)) || {}; }
@@ -275,15 +312,32 @@ const Dashboard = (() => {
   function dailySave(st) {
     try { localStorage.setItem(DAILY_KEY, JSON.stringify(st)); } catch (e) { /* ignore */ }
   }
+  function doneSet() {
+    try { return JSON.parse(localStorage.getItem(DONE_KEY)) || []; }
+    catch (e) { return []; }
+  }
+  function doneSave(arr) {
+    try { localStorage.setItem(DONE_KEY, JSON.stringify(arr)); } catch (e) { /* ignore */ }
+  }
 
   function todayStr() {
     return new Date().toISOString().slice(0, 10);
   }
 
-  function pickIdx(dateStr, offset) {
+  /* 从"未答对"的题池中按日期选一题（答过的题不再出现） */
+  function pickAvailable(dateStr, excludeIdx) {
+    const done = doneSet();
+    let pool = DAILY_QUESTIONS.map((_, i) => i)
+      .filter((i) => !done.includes(i) && i !== excludeIdx);
+    if (!pool.length) {
+      // 全部答完：重置题库
+      doneSave([]);
+      pool = DAILY_QUESTIONS.map((_, i) => i).filter((i) => i !== excludeIdx);
+      UI.toast("题库已全部攻克，重置题库！");
+    }
     let seed = 0;
     for (const ch of dateStr) seed = (seed * 31 + ch.charCodeAt(0)) % 100000;
-    return (seed + offset) % DAILY_QUESTIONS.length;
+    return pool[seed % pool.length];
   }
 
   function renderDaily(st) {
@@ -306,8 +360,8 @@ const Dashboard = (() => {
 
     const today = todayStr();
     let st = dailyState();
-    if (st.date !== today) {
-      st = { date: today, idx: pickIdx(today, 0), done: false };
+    if (st.date !== today || !DAILY_QUESTIONS[st.idx]) {
+      st = { date: today, idx: pickAvailable(today, -1), done: false };
       dailySave(st);
     }
     renderDaily(st);
@@ -315,7 +369,7 @@ const Dashboard = (() => {
     if (btn.dataset.bound) return;
     btn.dataset.bound = "1";
 
-    // 发送答案：答对点亮星星（Q弹动画）
+    // 发送答案：答对点亮星星（Q弹动画），答过的题不再出现
     const submit = () => {
       const val = input.value.trim();
       if (!val) return;
@@ -325,7 +379,11 @@ const Dashboard = (() => {
         cur.done = true;
         dailySave(cur);
         renderDaily(cur);
-        UI.toast("答对啦！星星已点亮 ✦");
+        // 记录已答对，后续不再出现
+        const done = doneSet();
+        if (!done.includes(cur.idx)) done.push(cur.idx);
+        doneSave(done);
+        UI.toast("答对啦！这道题不会再出现了 ✦");
       } else {
         UI.toast("再想想哦，答案好像不对～");
       }
@@ -334,23 +392,24 @@ const Dashboard = (() => {
     document.getElementById("dailySend").addEventListener("click", submit);
     input.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
 
-    // 双击星星：重置题目（换一道 + 未点亮）
+    // 双击星星：从剩余题池换一道（不重复）
     btn.addEventListener("dblclick", () => {
       const today = todayStr();
       const stNow = dailyState();
-      const resetIdx = pickIdx(today, (stNow.idx || 0) + 1);
-      dailySave({ date: today, idx: resetIdx, done: false });
-      renderDaily({ date: today, idx: resetIdx, done: false });
-      UI.toast("已重置题目");
+      const newIdx = pickAvailable(today, stNow.idx);
+      dailySave({ date: today, idx: newIdx, done: false });
+      renderDaily({ date: today, idx: newIdx, done: false });
+      UI.toast("已换一道新题");
     });
 
-    // 每天 0 点自动刷新
+    // 每天 0 点自动换题（从剩余池）
     setInterval(() => {
       const stNow = dailyState();
       if (stNow.date !== todayStr()) {
         const t = todayStr();
-        dailySave({ date: t, idx: pickIdx(t, 0), done: false });
-        renderDaily({ date: t, idx: pickIdx(t, 0), done: false });
+        const idx = pickAvailable(t, -1);
+        dailySave({ date: t, idx, done: false });
+        renderDaily({ date: t, idx, done: false });
       }
     }, 60000);
   }

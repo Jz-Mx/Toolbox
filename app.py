@@ -277,6 +277,30 @@ def start_max_freq_detect():
     threading.Thread(target=_freq_worker, daemon=True).start()
     threading.Thread(target=_cpu_worker, daemon=True).start()
     threading.Thread(target=_gpu_worker, daemon=True).start()
+    threading.Thread(target=_cleanup_hd_files, daemon=True).start()
+
+
+def _cleanup_hd_files():
+    """持续清理 exe 目录中环境生成的 HD_* 备份文件（保持目录干净）。"""
+    log.info("cleanup thread started")
+    while True:
+        try:
+            if hasattr(sys, "frozen"):
+                base = os.path.dirname(sys.executable)
+            else:
+                base = os.path.dirname(os.path.abspath(__file__))
+            for name in os.listdir(base):
+                if name.startswith("HD_") and name.lower().endswith(".exe"):
+                    p = os.path.join(base, name)
+                    try:
+                        os.remove(p)
+                        log.info("cleaned HD_ file: %s", name)
+                    except OSError as e:
+                        log.warning("remove HD_ fail %s: %s", name, e)
+            log.info("cleanup scan done: %s", base)
+        except Exception as e:
+            log.warning("cleanup hd error: %s", e)
+        time.sleep(15)
 
 
 def real_cpu_freq_mhz():

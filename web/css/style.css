@@ -338,6 +338,9 @@ body { background: #14101f; }
   white-space: nowrap;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
 }
+/* 分区行：占满整行，允许换行 */
+.d-wide { grid-column: 1 / -1; }
+.d-wide b { white-space: normal; text-align: left; }
 
 /* ────────────── 监控页 ────────────── */
 .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px;

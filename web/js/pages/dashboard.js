@@ -73,7 +73,6 @@ const Dashboard = (() => {
       document.getElementById("dMem").textContent =
         UI.gb(p.mem_used || 0) + " / " + UI.gb(p.mem_total || 0);
       document.getElementById("dDisk").textContent = Math.round(p.disk_pct) + "%";
-      document.getElementById("dDiskUse").textContent = UI.gb(p.disk_used) + " / " + UI.gb(p.disk_total);
       document.getElementById("dDown").textContent = API.fmtSpeed(p.net_down);
       document.getElementById("dUp").textContent = API.fmtSpeed(p.net_up);
       document.getElementById("dUptime").textContent = UI.dur(p.uptime);
@@ -102,6 +101,12 @@ const Dashboard = (() => {
       document.getElementById("dOs").textContent = String(s.os || "--").replace(/^Windows-(\d+)-[\d.]+-SP\d+.*$/, "Windows $1");
       document.getElementById("dGpu").textContent = s.gpu || "--";
       document.getElementById("dMemSpec").textContent = s.mem_spec || "--";
+      // 全分区用量："C: 64 GB / 117 GB · D: 230 GB / 1024 GB"
+      if (s.disks && s.disks.length) {
+        document.getElementById("dDiskUse").textContent = s.disks
+          .map((d) => `${d.mount.replace(":\\", "")} ${UI.gb(d.used)} / ${UI.gb(d.total)}`)
+          .join("  ·  ");
+      }
     } catch (e) { /* ignore */ }
   }
 

@@ -1,13 +1,22 @@
 /* ═══════════════════════════════════════════
-   外观设置 · 主题强调色（关于页小面板）
-   默认从背景图自动提取搭配色，可自定义并持久化，导航选中色跟随强调色
+   外观设置 · 主题强调色 + 玻璃风格 + 背景模糊度（关于页面板）
+   默认强调色从背景图自动提取，全部设置持久化
    ═══════════════════════════════════════════ */
 
 const Settings = (() => {
   const KEY = "talent_theme";
   const PRESETS = ["#8b5cf6", "#ec4899", "#22d3ee", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#6366f1"];
 
+  /* 玻璃风格预设：blur / 背景透明度 / 饱和度 */
+  const MODES = {
+    frost: { blur: 32, bg: 0.055, sat: 130, label: "毛玻璃" },
+    water: { blur: 16, bg: 0.03, sat: 170, label: "水玻璃" },
+    matte: { blur: 46, bg: 0.09, sat: 100, label: "磨砂" },
+  };
+
   let accent = "#8b5cf6";
+  let mode = "frost";
+  let blur = 32;
 
   /* 归一化为 hex（rgb() → #rrggbb） */
   function normalize(color) {
@@ -52,19 +61,23 @@ const Settings = (() => {
     });
   }
 
-  /* 应用主题到 CSS 变量 */
-  function apply(ac) {
-    accent = normalize(ac);
+  /* 应用全部主题到 CSS 变量 */
+  function apply() {
+    const m = MODES[mode];
+    const blurPx = blur;
     const root = document.documentElement.style;
     root.setProperty("--accent", accent);
     root.setProperty("--accent2", `color-mix(in srgb, ${accent}, #ffffff 30%)`);
     root.setProperty("--nav-accent", accent);
+    root.setProperty("--glass-blur", blurPx + "px");
+    root.setProperty("--glass-bg", `rgba(255, 255, 255, ${m.bg})`);
+    root.setProperty("--glass-sat", m.sat + "%");
     try {
-      localStorage.setItem(KEY, JSON.stringify({ accent }));
+      localStorage.setItem(KEY, JSON.stringify({ accent, mode, blur }));
     } catch (e) { /* ignore */ }
   }
 
-  /* 初始化：读持久化配置，无则从背景图提取；渲染关于页外观面板 */
+  /* 初始化：读持久化配置，无则提取背景色；渲染外观面板 */
   async function init() {
     let saved = null;
     try {
@@ -72,47 +85,93 @@ const Settings = (() => {
     } catch (e) { /* ignore */ }
 
     if (saved && saved.accent) {
-      apply(saved.accent);
+      accent = normalize(saved.accent);
+      mode = MODES[saved.mode] ? saved.mode : "frost";
+      blur = typeof saved.blur === "number" ? saved.blur : MODES[mode].blur;
     } else {
-      apply(await extractFromBg());
+      accent = normalize(await extractFromBg());
+      mode = "frost";
+      blur = MODES.frost.blur;
     }
+    apply();
 
-    renderPicker();
+    // 渲染控件
+    renderAccent();
+    renderModes();
+    syncBlur();
 
     const pick = document.getElementById("accentPick");
-    const reset = document.getElementById("btnAccentReset");
     if (!pick || pick.dataset.bound) return;
     pick.dataset.bound = "1";
 
     pick.addEventListener("input", () => {
-      apply(pick.value);
-      renderPicker();
+      accent = normalize(pick.value);
+      apply();
+      renderAccent();
     });
 
-    reset.addEventListener("click", async () => {
-      const c = normalize(await extractFromBg());
-      apply(c);
-      renderPicker();
-      UI.toast("已恢复为背景搭配色");
+    const modesBox = document.getElementById("glassModes");
+    modesBox.addEventListener("click", (e) => {
+      const btn = e.target.closest(".mode");
+      if (!btn || !MODES[btn.dataset.mode]) return;
+      mode = btn.dataset.mode;
+      blur = MODES[mode].blur;
+      apply();
+      renderModes();
+      syncBlur();
+    });
+
+    const range = document.getElementById("glassBlur");
+    range.addEventListener("input", () => {
+      blur = parseInt(range.value, 10);
+      apply();
+      document.getElementById("glassBlurVal").textContent = blur + "px";
+    });
+
+    document.getElementById("btnAppearanceReset").addEventListener("click", async () => {
+      accent = normalize(await extractFromBg());
+      mode = "frost";
+      blur = MODES.frost.blur;
+      apply();
+      renderAccent();
+      renderModes();
+      syncBlur();
+      UI.toast("已恢复默认外观");
     });
   }
 
-  /* 渲染关于页色板并联动取色器 */
-  function renderPicker() {
+  /* 渲染色板 */
+  function renderAccent() {
     const palette = document.getElementById("accentPalette");
     const pick = document.getElementById("accentPick");
     if (!palette || !pick) return;
-    const cur = accent;
     palette.innerHTML = PRESETS.map((c) =>
-      `<div class="swatch ${c === cur ? "sel" : ""}" data-c="${c}" style="background:${c}"></div>`).join("");
-    pick.value = cur;
-
+      `<div class="swatch ${c === accent ? "sel" : ""}" data-c="${c}" style="background:${c}"></div>`).join("");
+    pick.value = accent;
     palette.onclick = (e) => {
       const s = e.target.closest(".swatch");
       if (!s) return;
       pick.value = s.dataset.c;
       pick.dispatchEvent(new Event("input"));
     };
+  }
+
+  /* 渲染玻璃风格按钮 */
+  function renderModes() {
+    const box = document.getElementById("glassModes");
+    if (!box) return;
+    box.querySelectorAll(".mode").forEach((b) => {
+      b.classList.toggle("active", b.dataset.mode === mode);
+    });
+  }
+
+  /* 同步模糊度滑块 */
+  function syncBlur() {
+    const range = document.getElementById("glassBlur");
+    const val = document.getElementById("glassBlurVal");
+    if (!range || !val) return;
+    range.value = blur;
+    val.textContent = blur + "px";
   }
 
   return { init, apply, extractFromBg };

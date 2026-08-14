@@ -242,7 +242,7 @@
         </svg>
       </div>
       <h1>Talent <span>工具箱</span></h1>
-      <div class="about-ver">v1.0.0</div>
+      <div class="about-ver">v1.1.0</div>
       <p class="about-desc">一款简洁可爱的桌面小工具箱<br>毛玻璃质感 · 元气满满 · 为你而生</p>
       <div class="about-devs">
         <div class="dev-card glass-inner">
@@ -262,8 +262,27 @@
           <span class="appearance-label">强调色</span>
           <div class="palette sm" id="accentPalette"></div>
           <input type="color" id="accentPick" value="#8b5cf6" title="自定义">
-          <button class="btn ghost sm" id="btnAccentReset">恢复默认</button>
         </div>
+        <div class="appearance-row">
+          <span class="appearance-label">玻璃风格</span>
+          <div class="glass-modes" id="glassModes">
+            <button class="mode active" data-mode="frost">毛玻璃</button>
+            <button class="mode" data-mode="water">水玻璃</button>
+            <button class="mode" data-mode="matte">磨砂</button>
+          </div>
+        </div>
+        <div class="appearance-row">
+          <span class="appearance-label">模糊度</span>
+          <input type="range" id="glassBlur" min="0" max="60" value="32">
+          <span class="appearance-val" id="glassBlurVal">32px</span>
+          <button class="btn ghost sm" id="btnAppearanceReset">恢复默认</button>
+        </div>
+      </div>
+      <div class="about-extra glass-inner">
+        <div class="ae-row"><b>版本</b><span>v1.1.0</span></div>
+        <div class="ae-row"><b>功能</b><span>硬件监控 · 系统工具 · 小玩意 · 外观主题</span></div>
+        <div class="ae-row"><b>技术</b><span>pywebview · psutil · 原生前端</span></div>
+        <div class="ae-row"><b>致谢</b><span>灵感来自 NexBox 新境盒</span></div>
       </div>
       <div class="about-foot">Made with love by Talent · 2025</div>
     </div>

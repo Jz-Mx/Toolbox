@@ -141,13 +141,23 @@ const Dashboard = (() => {
       coresText = (s.cpu_cores || "?") + "核 / " + (s.cpu_threads || "?") + "线程";
       memSpecText = s.mem_spec || "";
       osText = s.os || "--";
-      document.getElementById("dGpu").textContent = s.gpu || "--";
+      document.getElementById("dGpu").textContent = String(s.gpu || "--").split(" / ")[0];
       updateUptimeOs();
       // 全分区用量："C: 64 GB / 117 GB · D: 230 GB / 1024 GB"
       if (s.disks && s.disks.length) {
         document.getElementById("dDiskUse").textContent = s.disks
           .map((d) => `${d.mount.replace(":\\", "")} ${UI.gb(d.used)} / ${UI.gb(d.total)}`)
           .join("  ·  ");
+      }
+      // 分区文字未超过系统信息时：分区与系统信息互换（分区提前）
+      const dUse = document.getElementById("dDiskUse");
+      const dSys = document.getElementById("dUptimeOs");
+      if (dUse && dSys && dUse.textContent.length > 0 && dUse.textContent.length <= osText.length) {
+        const a = dUse.closest(".d-item");
+        const b = dSys.closest(".d-item");
+        if (a && b && a !== b) {
+          b.parentElement.insertBefore(a, b);
+        }
       }
       // 睿频探测未完成时 8 秒后重试
       if (!cpuMax) {

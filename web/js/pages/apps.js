@@ -160,6 +160,36 @@ const Apps = (() => {
         pomoRender();
       });
     });
+
+    // 滚轮调时：上滚加分钟 / 下滚减分钟；按住中键滚动调秒（±5）
+    const wheel = document.getElementById("pomoWheel");
+    let middleDown = false;
+    wheel.addEventListener("mousedown", (e) => {
+      if (e.button === 1) { middleDown = true; e.preventDefault(); }
+    });
+    window.addEventListener("mouseup", (e) => {
+      if (e.button === 1) middleDown = false;
+    });
+    wheel.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const dir = e.deltaY < 0 ? 1 : -1;
+      if (middleDown) {
+        let s = (pomoLeft % 60) + dir * 5;
+        let m = Math.floor(pomoLeft / 60);
+        if (s >= 60) { m += 1; s -= 60; }
+        if (s < 0) { m -= 1; s += 60; }
+        if (m < 1) m = 1;
+        pomoLeft = m * 60 + s;
+      } else {
+        pomoLeft = Math.max(60, pomoLeft + dir * 60); // 分钟 ±1，最少 1 分钟
+      }
+      pomoTotal = pomoLeft;
+      pomoEnded = false;
+      document.querySelectorAll(".pomo-modes .mode").forEach((x) => x.classList.remove("active"));
+      btnStart.textContent = "开始";
+      document.getElementById("pomoState").textContent = "准备开始";
+      pomoRender();
+    });
   }
 
   /* ── 颜色工具 ── */

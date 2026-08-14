@@ -180,7 +180,7 @@ body { background: #14101f; }
 }
 
 /* 首页：详情信息固定在页面底部（下摆着） */
-#page-dashboard {
+#page-dashboard.active {
   min-height: 100%;
   display: flex;
   flex-direction: column;
@@ -498,7 +498,23 @@ body { background: #14101f; }
 .pomo-center b { font-size: 34px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .pomo-center span { font-size: 12px; color: var(--text-dim); }
 .pomo-btns { display: flex; gap: 10px; }
-.pomo-modes { display: flex; gap: 8px; }
+.pomo-modes { display: flex; gap: 8px; align-items: center; }
+.pomo-wheel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-left: 4px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-dim);
+  cursor: ns-resize;
+  transition: transform 0.3s var(--spring), background 0.2s, color 0.2s;
+}
+.pomo-wheel:hover { background: rgba(255, 255, 255, 0.12); color: var(--text); transform: scale(1.1); }
+.pomo-wheel:active { transform: scale(0.9); }
 .pomo-modes .mode {
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.05);
